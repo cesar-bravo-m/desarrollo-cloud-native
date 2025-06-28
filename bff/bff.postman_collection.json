@@ -1,0 +1,401 @@
+{
+	"info": {
+		"_postman_id": "bff-collection",
+		"name": "BFF API",
+		"description": "Collection for the BFF API endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Hello",
+			"item": [
+				{
+					"name": "Get Hello",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/hello",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["hello"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Producto",
+			"item": [
+				{
+					"name": "Get All Productos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/producto",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["producto"]
+						}
+					}
+				},
+				{
+					"name": "Get Producto by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/producto/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["producto", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Producto",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Producto Test\",\n    \"descripcion\": \"Descripción del producto\",\n    \"stockActual\": 100,\n    \"registroFecha\": \"2024-03-20\",\n    \"valorCosto\": 1000,\n    \"valorVenta\": 2000,\n    \"imagenUri\": \"http://example.com/image.jpg\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/producto",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["producto"]
+						}
+					}
+				},
+				{
+					"name": "Update Producto",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nombre\": \"Producto Actualizado\",\n    \"descripcion\": \"Descripción actualizada\",\n    \"stockActual\": 50,\n    \"registroFecha\": \"2024-03-20\",\n    \"valorCosto\": 1500,\n    \"valorVenta\": 3000,\n    \"imagenUri\": \"http://example.com/new-image.jpg\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/producto/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["producto", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Producto",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/producto/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["producto", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Carro",
+			"item": [
+				{
+					"name": "Get All Carros",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/carro",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["carro"]
+						}
+					}
+				},
+				{
+					"name": "Get Carro by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/carro/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["carro", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Carro",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuarioId\": \"user123\",\n    \"productoId\": 1,\n    \"cantidad\": 2,\n    \"registroFecha\": \"2024-03-20\",\n    \"vigenciaFlag\": 1,\n    \"ticketId\": null\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/carro",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["carro"]
+						}
+					}
+				},
+				{
+					"name": "Update Carro",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"usuarioId\": \"user123\",\n    \"productoId\": 1,\n    \"cantidad\": 3,\n    \"registroFecha\": \"2024-03-20\",\n    \"vigenciaFlag\": 1,\n    \"ticketId\": 1\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/carro/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["carro", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Carro",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/carro/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["carro", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Usuario",
+			"item": [
+				{
+					"name": "Get All Usuarios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/usuario",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["usuario"]
+						}
+					}
+				},
+				{
+					"name": "Get Usuario by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/usuario/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["usuario", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Usuario",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"usuario@example.com\",\n    \"nombre\": \"Usuario Test\",\n    \"loginUltimo\": \"2024-03-20T10:00:00\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/usuario",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["usuario"]
+						}
+					}
+				},
+				{
+					"name": "Update Usuario",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"usuario.actualizado@example.com\",\n    \"nombre\": \"Usuario Actualizado\",\n    \"loginUltimo\": \"2024-03-20T11:00:00\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/usuario/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["usuario", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Usuario",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/usuario/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["usuario", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Ticket",
+			"item": [
+				{
+					"name": "Get All Tickets",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/ticket",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["ticket"]
+						}
+					}
+				},
+				{
+					"name": "Get Ticket by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/ticket/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["ticket", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Ticket",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"total\": \"5000\",\n    \"registroFecha\": \"2024-03-20\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/ticket",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["ticket"]
+						}
+					}
+				},
+				{
+					"name": "Update Ticket",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"total\": \"6000\",\n    \"registroFecha\": \"2024-03-20\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:8081/ticket/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["ticket", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Ticket",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8081/ticket/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "8081",
+							"path": ["ticket", "1"]
+						}
+					}
+				}
+			]
+		}
+	]
+} 

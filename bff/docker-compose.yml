@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  bff:
+    image: cbravobcyt/bff
+    ports:
+      - "81:8080"
+    depends_on:
+      - api
+    networks:
+      - app-network
+
+  api:
+    image: cbravobcyt/dcn_api
+    ports:
+      - "80:8081"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge 

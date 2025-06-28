@@ -1,0 +1,161 @@
+openapi: 3.0.3
+info:
+  title: API Tienda
+  description: API para gestión de tienda
+  version: 1.0.0
+servers:
+  - url: http://localhost:8081
+    description: Servidor local
+
+paths:
+  /hello:
+    get:
+      summary: Endpoint de prueba
+      description: Retorna un mensaje de saludo
+      responses:
+        '200':
+          description: Mensaje de saludo exitoso
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello, World!"
+
+  /producto:
+    get:
+      summary: Obtener todos los productos
+      description: Retorna una lista de todos los productos disponibles
+      responses:
+        '200':
+          description: Lista de productos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+
+  /producto/{id}:
+    get:
+      summary: Obtener producto por ID
+      description: Retorna un producto específico basado en su ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Producto encontrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Producto no encontrado
+
+  /carro/{id}:
+    get:
+      summary: Obtener carro por ID de usuario
+      description: Retorna el carro de compras de un usuario específico
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Carro obtenido exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Carro'
+
+  /carro:
+    post:
+      summary: Crear nuevo carro
+      description: Crea un nuevo carro de compras
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Carro'
+      responses:
+        '200':
+          description: Carro creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carro'
+
+components:
+  schemas:
+    Producto:
+      type: object
+      properties:
+        productoId:
+          type: integer
+          format: int64
+        nombre:
+          type: string
+        descripcion:
+          type: string
+        stockActual:
+          type: integer
+          format: int64
+        registroFecha:
+          type: string
+          format: date
+        valorCosto:
+          type: integer
+          format: int64
+        valorVenta:
+          type: integer
+          format: int64
+        imagenUri:
+          type: string
+
+    Carro:
+      type: object
+      properties:
+        carroId:
+          type: integer
+          format: int64
+        usuarioId:
+          type: integer
+          format: int64
+        productoId:
+          type: integer
+          format: int64
+        cantidad:
+          type: integer
+          format: int64
+        registroFecha:
+          type: string
+          format: date
+        vigenciaFlag:
+          type: integer
+          format: int32
+
+    Usuario:
+      type: object
+      properties:
+        usuarioId:
+          type: integer
+          format: int64
+        email:
+          type: integer
+          format: int64
+        nombre:
+          type: integer
+          format: int64
+        loginUltimo:
+          type: integer
+          format: int64 
