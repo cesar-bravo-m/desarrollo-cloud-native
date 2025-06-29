@@ -33,38 +33,33 @@ public class CarroController {
         return carroService.getCarroByUsuarioId(id);
     }
 
+    // Crear carro
     @PostMapping("/carro")
     public Carro sendMessageProducto(@RequestBody Carro carro) {
-        System.out.println("Carro Ticket Id: " + carro.getTicketId());
         carroService.sendCarroToQueue(carro);
         return carro;
     }
 
+    // Comprar carro
     @PostMapping("/comprar/{idCarro}")
-    public Carro comprar(@PathVariable Long idCarro) {
+    public boolean comprar(@PathVariable Long idCarro) {
         Optional<Carro> carroOpt = carroService.getCarroById(idCarro);
         if (carroOpt.isPresent()) {
             Carro carro = carroOpt.get();
             
-            // Generar ticket - let JPA handle the ID generation
             Ticket ticket = new Ticket();
             ticket.setRegistroFecha(new java.sql.Date(System.currentTimeMillis()));
-            ticket.setTotal(0L); // Set a default total or calculate it
+            ticket.setTotal(0L);
             Ticket savedTicket = ticketService.createTicket(ticket);
             
-            // Update carro with the generated ticket ID
             carro.setTicketId(savedTicket.getTicketId());
             carro.setVigenciaFlag(0);
+
+            carroService.sendCarroToQueue(carro);
             
-            // Save the updated carro
-            Carro updatedCarro = carroService.updateCarro(idCarro, carro);
-            
-            // Send to queue
-            carroService.sendCarroToQueue(updatedCarro);
-            
-            return updatedCarro;
+            return true;
         } else {
-            return null;
+            return false;
         }
     }
 }
