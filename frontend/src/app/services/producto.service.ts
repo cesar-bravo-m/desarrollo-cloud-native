@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { MsalService } from '@azure/msal-angular';
 import { switchMap, catchError } from 'rxjs/operators';
+import { ProductoAPI, CarroAPI, CarroCreateAPI } from '../../../types';
 
 @Injectable({
   providedIn: 'root'
@@ -10,10 +11,7 @@ import { switchMap, catchError } from 'rxjs/operators';
 
 export class ProductoService {
 
-  //private url = "https://hw35efgkkd.execute-api.us-east-1.amazonaws.com/desarrollo";
-  //private url = "http://20.110.161.21";
   private url = "http://localhost:8080";
-  producto = {}
 
   constructor(
     private http: HttpClient,
@@ -40,49 +38,43 @@ export class ProductoService {
     );
   }
 
-  getProducto(): Observable<any> {
+  getProducto(): Observable<ProductoAPI[]> {
     console.log("Accediendo endpoint: "+this.url);
     return this.getHeaders().pipe(
-      switchMap(headers => this.http.get(this.url+"/producto", { headers }))
+      switchMap(headers => this.http.get<ProductoAPI[]>(this.url+"/producto", { headers }))
     );
   }
 
-  getProductoId(productoId: number): Observable<any> {
+  getProductoId(productoId: number): Observable<ProductoAPI> {
     console.log("Accediendo endpoint: "+this.url+"/producto/"+productoId);
     return this.getHeaders().pipe(
       switchMap(
         headers =>
-          this.http.get(this.url+"/producto/"+productoId, { headers })
+          this.http.get<ProductoAPI>(this.url+"/producto/"+productoId, { headers })
       )
     );
   }
 
-  getCarro(usuarioId: String): Observable<any> {
+  getCarro(usuarioId: string): Observable<CarroAPI[]> {
     console.log("recuperando carro: "+this.url+"\n"+usuarioId);
-    var uri = this.url+"/carro/"+usuarioId;
+    var uri = this.url+"/carritos/usuario/"+usuarioId;
     console.log("Uri "+uri);
     return this.getHeaders().pipe(
       switchMap(
-        headers => this.http.get(uri, { headers }))
+        headers => this.http.get<CarroAPI[]>(uri, { headers }))
     );
   }
 
-  setCarro(carro: any): Observable<any> {
-    let fecha = new Date();
-    let dia = (( fecha.getDate() < 10 ) ? "0":"" )+fecha.getDate();
-    let mes = (( fecha.getMonth() + 1 < 10 ) ? "0":"" )+(fecha.getMonth()+1);
-    let fechaStr = `${fecha.getFullYear()}-${mes}-${dia}`;
-    carro.registroFecha = fechaStr;
-
+  setCarro(carro: CarroCreateAPI): Observable<CarroAPI> {
     console.log("guardando seleccion: "+this.url+"\n"+carro);
     return this.getHeaders().pipe(
-      switchMap(headers => this.http.post(this.url+"/carro", carro, { headers }))
+      switchMap(headers => this.http.post<CarroAPI>(this.url+"/carritos", carro, { headers }))
     );
   }
 
-  unsetCarro(productoId: number): Observable<any> {
+  unsetCarro(carroId: number): Observable<any> {
     return this.getHeaders().pipe(
-      switchMap(headers => this.http.delete(this.url+"/carro/"+productoId, { headers }))
+      switchMap(headers => this.http.delete(this.url+"/carritos/"+carroId, { headers }))
     );
   }
 
@@ -95,5 +87,4 @@ export class ProductoService {
   getHtmlContent(url: string): Observable<string> {
     return this.http.get(url, { responseType: 'text' });
   }
-
 }

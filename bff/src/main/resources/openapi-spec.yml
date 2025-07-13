@@ -1,0 +1,1237 @@
+openapi: 3.0.3
+info:
+  title: BFF para un sistema de ventas online
+  description: |
+    BFF para un sistema de ventas online
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@onlinestore.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+  - url: https://api.onlinestore.com
+    description: Production server
+
+tags:
+  - name: Shopping Carts
+    description: Operations for managing shopping carts
+  - name: Sales
+    description: Operations for processing sales and transactions
+  - name: Products
+    description: Operations for retrieving product information
+  - name: Health
+    description: Health check endpoints
+
+paths:
+  # ===============================================
+  # SHOPPING CART ENDPOINTS
+  # ===============================================
+  
+  /carritos:
+    get:
+      tags:
+        - Shopping Carts
+      summary: Get all shopping carts
+      description: |
+        Retrieves all shopping carts in the system. This endpoint is typically used by
+        administrators to monitor cart activity across all users.
+      operationId: getAllCarritos
+      responses:
+        '200':
+          description: Successfully retrieved all shopping carts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Carro'
+              example:
+                - carroId: 1
+                  usuarioId: "user123"
+                  productoId: 101
+                  cantidad: 2
+                  registroFecha: "2024-01-15T10:30:00Z"
+                  vigenciaFlag: 1
+                - carroId: 2
+                  usuarioId: "user456"
+                  productoId: 102
+                  cantidad: 1
+                  registroFecha: "2024-01-15T11:45:00Z"
+                  vigenciaFlag: 1
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    post:
+      tags:
+        - Shopping Carts
+      summary: Create a new shopping cart
+      description: |
+        Creates a new shopping cart for a user. The cart will be initialized with the specified
+        product and quantity. If a cart already exists for the user, it may be updated or a new
+        cart item may be added depending on the backend logic.
+      operationId: createCarrito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarroCreate'
+            example:
+              usuarioId: "user123"
+              productoId: 101
+              cantidad: 2
+      responses:
+        '201':
+          description: Shopping cart created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carro'
+        '400':
+          description: Bad request - invalid cart data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /carritos/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Unique identifier of the shopping cart
+        schema:
+          type: integer
+          format: int64
+        example: 1
+    
+    get:
+      tags:
+        - Shopping Carts
+      summary: Get shopping cart by ID
+      description: |
+        Retrieves a specific shopping cart by its unique identifier. This endpoint is useful
+        for displaying cart details or checking cart status.
+      operationId: getCarritoById
+      responses:
+        '200':
+          description: Successfully retrieved shopping cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carro'
+        '404':
+          description: Shopping cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    put:
+      tags:
+        - Shopping Carts
+      summary: Update shopping cart
+      description: |
+        Updates an existing shopping cart. This endpoint allows modifying cart properties
+        such as product quantities or user associations.
+      operationId: updateCarrito
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarroUpdate'
+            example:
+              usuarioId: "user123"
+              productoId: 101
+              cantidad: 3
+      responses:
+        '200':
+          description: Shopping cart updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carro'
+        '404':
+          description: Shopping cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Shopping Carts
+      summary: Delete shopping cart
+      description: |
+        Permanently deletes a shopping cart. This action cannot be undone and will remove
+        all items associated with the cart.
+      operationId: deleteCarrito
+      responses:
+        '204':
+          description: Shopping cart deleted successfully
+        '404':
+          description: Shopping cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /carritos/usuario/{usuarioId}:
+    parameters:
+      - name: usuarioId
+        in: path
+        required: true
+        description: User identifier to filter carts
+        schema:
+          type: string
+        example: "user123"
+    
+    get:
+      tags:
+        - Shopping Carts
+      summary: Get shopping carts by user
+      description: |
+        Retrieves all shopping carts associated with a specific user. This endpoint is
+        commonly used to display a user's active carts or purchase history.
+      operationId: getCarritosByUsuario
+      responses:
+        '200':
+          description: Successfully retrieved user's shopping carts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Carro'
+        '404':
+          description: User not found or no carts associated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /carritos/{carritoId}/items:
+    parameters:
+      - name: carritoId
+        in: path
+        required: true
+        description: Shopping cart identifier
+        schema:
+          type: integer
+          format: int64
+        example: 1
+    
+    get:
+      tags:
+        - Shopping Carts
+      summary: Get cart items
+      description: |
+        Retrieves all items in a specific shopping cart. This endpoint provides detailed
+        information about products, quantities, and pricing for items in the cart.
+      operationId: getCarritoItems
+      responses:
+        '200':
+          description: Successfully retrieved cart items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarroItem'
+        '404':
+          description: Shopping cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    post:
+      tags:
+        - Shopping Carts
+      summary: Add item to cart
+      description: |
+        Adds a new product to the shopping cart with the specified quantity. If the product
+        already exists in the cart, the quantity will be updated accordingly.
+      operationId: addItemToCarrito
+      parameters:
+        - name: productoId
+          in: query
+          required: true
+          description: Product identifier to add to cart
+          schema:
+            type: integer
+            format: int64
+          example: 101
+        - name: cantidad
+          in: query
+          required: true
+          description: Quantity of the product to add
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+          example: 2
+      responses:
+        '201':
+          description: Item added to cart successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarroItem'
+        '400':
+          description: Bad request - invalid product or quantity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Shopping cart or product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Shopping Carts
+      summary: Clear all items from cart
+      description: |
+        Removes all items from the shopping cart, effectively emptying it. This action
+        is useful for resetting a cart or starting fresh.
+      operationId: clearCarrito
+      responses:
+        '204':
+          description: All items removed from cart successfully
+        '404':
+          description: Shopping cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /carritos/{carritoId}/items/{productoId}:
+    parameters:
+      - name: carritoId
+        in: path
+        required: true
+        description: Shopping cart identifier
+        schema:
+          type: integer
+          format: int64
+        example: 1
+      - name: productoId
+        in: path
+        required: true
+        description: Product identifier
+        schema:
+          type: integer
+          format: int64
+        example: 101
+    
+    put:
+      tags:
+        - Shopping Carts
+      summary: Update item quantity in cart
+      description: |
+        Updates the quantity of a specific product in the shopping cart. If the quantity
+        is set to 0, the item will be removed from the cart.
+      operationId: updateCarritoItemQuantity
+      parameters:
+        - name: cantidad
+          in: query
+          required: true
+          description: New quantity for the product
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+          example: 3
+      responses:
+        '200':
+          description: Item quantity updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarroItem'
+        '400':
+          description: Bad request - invalid quantity
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Shopping cart or product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    
+    delete:
+      tags:
+        - Shopping Carts
+      summary: Remove item from cart
+      description: |
+        Removes a specific product from the shopping cart. This action permanently
+        deletes the item from the cart.
+      operationId: removeItemFromCarrito
+      responses:
+        '204':
+          description: Item removed from cart successfully
+        '404':
+          description: Shopping cart or product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /carritos/{carritoId}/total:
+    parameters:
+      - name: carritoId
+        in: path
+        required: true
+        description: Shopping cart identifier
+        schema:
+          type: integer
+          format: int64
+        example: 1
+    
+    get:
+      tags:
+        - Shopping Carts
+      summary: Get cart total
+      description: |
+        Calculates and returns the total cost of all items in the shopping cart,
+        including any applicable taxes or discounts.
+      operationId: getCarritoTotal
+      responses:
+        '200':
+          description: Successfully calculated cart total
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarroTotal'
+        '404':
+          description: Shopping cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /carritos/{carritoId}/abandon:
+    parameters:
+      - name: carritoId
+        in: path
+        required: true
+        description: Shopping cart identifier
+        schema:
+          type: integer
+          format: int64
+        example: 1
+    
+    put:
+      tags:
+        - Shopping Carts
+      summary: Abandon shopping cart
+      description: |
+        Marks a shopping cart as abandoned. This typically sets the cart's validity flag
+        to indicate it's no longer active, but preserves the data for analytics.
+      operationId: abandonCarrito
+      responses:
+        '200':
+          description: Shopping cart abandoned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carro'
+        '404':
+          description: Shopping cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ===============================================
+  # SALES ENDPOINTS
+  # ===============================================
+  
+  /ventas:
+    get:
+      tags:
+        - Sales
+      summary: Get all sales
+      description: |
+        Retrieves all sales transactions in the system. This endpoint is typically used
+        by administrators for reporting and analytics purposes.
+      operationId: getAllVentas
+      responses:
+        '200':
+          description: Successfully retrieved all sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Venta'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ventas/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Sale transaction identifier
+        schema:
+          type: integer
+          format: int64
+        example: 1
+    
+    get:
+      tags:
+        - Sales
+      summary: Get sale by ID
+      description: |
+        Retrieves a specific sale transaction by its unique identifier. This endpoint
+        provides detailed information about a completed purchase.
+      operationId: getVentaById
+      responses:
+        '200':
+          description: Successfully retrieved sale
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venta'
+        '404':
+          description: Sale not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ventas/usuario/{usuarioId}:
+    parameters:
+      - name: usuarioId
+        in: path
+        required: true
+        description: User identifier to filter sales
+        schema:
+          type: string
+        example: "user123"
+    
+    get:
+      tags:
+        - Sales
+      summary: Get sales by user
+      description: |
+        Retrieves all sales transactions for a specific user. This endpoint is commonly
+        used to display a user's purchase history or order tracking.
+      operationId: getVentasByUsuario
+      responses:
+        '200':
+          description: Successfully retrieved user's sales
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Venta'
+        '404':
+          description: User not found or no sales associated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ventas/checkout:
+    post:
+      tags:
+        - Sales
+      summary: Process checkout
+      description: |
+        Processes a checkout transaction by converting a shopping cart into a sale.
+        This endpoint handles the complete purchase flow including inventory updates,
+        payment processing, and order confirmation.
+      operationId: checkout
+      parameters:
+        - name: carritoId
+          in: query
+          required: true
+          description: Shopping cart identifier to checkout
+          schema:
+            type: integer
+            format: int64
+          example: 1
+        - name: usuarioId
+          in: query
+          required: true
+          description: User identifier making the purchase
+          schema:
+            type: string
+          example: "user123"
+      responses:
+        '201':
+          description: Checkout processed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venta'
+        '400':
+          description: Bad request - invalid cart or user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Shopping cart or user not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Conflict - insufficient inventory or cart issues
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /ventas/carrito/{carritoId}/status:
+    parameters:
+      - name: carritoId
+        in: path
+        required: true
+        description: Shopping cart identifier
+        schema:
+          type: integer
+          format: int64
+        example: 1
+    
+    get:
+      tags:
+        - Sales
+      summary: Get sale status for cart
+      description: |
+        Retrieves the status of a sale transaction associated with a specific shopping cart.
+        This endpoint is useful for tracking order status and delivery information.
+      operationId: getVentaStatus
+      responses:
+        '200':
+          description: Successfully retrieved sale status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VentaStatus'
+        '404':
+          description: Sale or cart not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ===============================================
+  # PRODUCT ENDPOINTS
+  # ===============================================
+  
+  /producto:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      description: |
+        Retrieves all available products in the catalog. This endpoint provides
+        comprehensive product information including pricing, inventory, and images.
+      operationId: getAllProductos
+      responses:
+        '200':
+          description: Successfully retrieved all products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /producto/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: Product identifier
+        schema:
+          type: integer
+          format: int64
+        example: 101
+    
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      description: |
+        Retrieves detailed information about a specific product including its
+        description, pricing, availability, and image.
+      operationId: getProductoById
+      responses:
+        '200':
+          description: Successfully retrieved product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Product not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  # ===============================================
+  # HEALTH CHECK ENDPOINTS
+  # ===============================================
+  
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: |
+        Performs a health check on the BFF service to verify it's operational
+        and ready to handle requests.
+      operationId: healthCheck
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: "OK"
+        '503':
+          description: Service is unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Carro:
+      type: object
+      description: Shopping cart entity representing a user's cart with items
+      properties:
+        carroId:
+          type: integer
+          format: int64
+          description: Unique identifier for the shopping cart
+          example: 1
+        usuarioId:
+          type: string
+          description: User identifier associated with the cart
+          example: "user123"
+        productoId:
+          type: integer
+          format: int64
+          description: Product identifier in the cart
+          example: 101
+        cantidad:
+          type: integer
+          format: int64
+          description: Quantity of the product in the cart
+          minimum: 1
+          example: 2
+        registroFecha:
+          type: string
+          format: date-time
+          description: Date and time when the cart item was added
+          example: "2024-01-15T10:30:00Z"
+        vigenciaFlag:
+          type: integer
+          description: Flag indicating if the cart is still valid (1 = active, 0 = inactive)
+          enum: [0, 1]
+          example: 1
+      required:
+        - carroId
+        - usuarioId
+        - productoId
+        - cantidad
+        - registroFecha
+        - vigenciaFlag
+
+    CarroCreate:
+      type: object
+      description: Data structure for creating a new shopping cart
+      properties:
+        usuarioId:
+          type: string
+          description: User identifier for the cart
+          example: "user123"
+        productoId:
+          type: integer
+          format: int64
+          description: Product identifier to add to cart
+          example: 101
+        cantidad:
+          type: integer
+          format: int64
+          description: Quantity of the product
+          minimum: 1
+          example: 2
+      required:
+        - usuarioId
+        - productoId
+        - cantidad
+
+    CarroUpdate:
+      type: object
+      description: Data structure for updating an existing shopping cart
+      properties:
+        usuarioId:
+          type: string
+          description: User identifier for the cart
+          example: "user123"
+        productoId:
+          type: integer
+          format: int64
+          description: Product identifier in the cart
+          example: 101
+        cantidad:
+          type: integer
+          format: int64
+          description: Updated quantity of the product
+          minimum: 0
+          example: 3
+      required:
+        - usuarioId
+        - productoId
+        - cantidad
+
+    CarroItem:
+      type: object
+      description: Detailed cart item information including product details
+      properties:
+        carroId:
+          type: integer
+          format: int64
+          description: Shopping cart identifier
+          example: 1
+        productoId:
+          type: integer
+          format: int64
+          description: Product identifier
+          example: 101
+        cantidad:
+          type: integer
+          format: int64
+          description: Quantity of the product
+          example: 2
+        producto:
+          $ref: '#/components/schemas/Producto'
+        subtotal:
+          type: number
+          format: double
+          description: Subtotal for this item (quantity * price)
+          example: 29.98
+      required:
+        - carroId
+        - productoId
+        - cantidad
+
+    CarroTotal:
+      type: object
+      description: Shopping cart total calculation
+      properties:
+        carroId:
+          type: integer
+          format: int64
+          description: Shopping cart identifier
+          example: 1
+        subtotal:
+          type: number
+          format: double
+          description: Subtotal before taxes and discounts
+          example: 59.96
+        impuestos:
+          type: number
+          format: double
+          description: Tax amount
+          example: 5.99
+        descuento:
+          type: number
+          format: double
+          description: Discount amount
+          example: 0.00
+        total:
+          type: number
+          format: double
+          description: Final total amount
+          example: 65.95
+        itemCount:
+          type: integer
+          description: Total number of items in the cart
+          example: 3
+      required:
+        - carroId
+        - total
+
+    Producto:
+      type: object
+      description: Product entity representing items available for purchase
+      properties:
+        productoId:
+          type: integer
+          format: int64
+          description: Unique identifier for the product
+          example: 101
+        nombre:
+          type: string
+          description: Product name
+          example: "Smartphone XYZ"
+        descripcion:
+          type: string
+          description: Detailed product description
+          example: "Latest smartphone with advanced features and high-performance camera"
+        stockActual:
+          type: integer
+          format: int64
+          description: Current available stock quantity
+          minimum: 0
+          example: 50
+        registroFecha:
+          type: string
+          format: date-time
+          description: Date and time when the product was registered
+          example: "2024-01-01T00:00:00Z"
+        valorCosto:
+          type: integer
+          format: int64
+          description: Product cost price in cents
+          example: 12000
+        valorVenta:
+          type: integer
+          format: int64
+          description: Product sale price in cents
+          example: 14999
+        imagenUri:
+          type: string
+          format: uri
+          description: URL to the product image
+          example: "https://example.com/images/smartphone-xyz.jpg"
+      required:
+        - productoId
+        - nombre
+        - stockActual
+        - valorVenta
+
+    Venta:
+      type: object
+      description: Sales transaction entity representing a completed purchase
+      properties:
+        ventaId:
+          type: integer
+          format: int64
+          description: Unique identifier for the sale
+          example: 1
+        usuarioId:
+          type: string
+          description: User identifier who made the purchase
+          example: "user123"
+        carroId:
+          type: integer
+          format: int64
+          description: Original shopping cart identifier
+          example: 1
+        fechaVenta:
+          type: string
+          format: date-time
+          description: Date and time of the sale
+          example: "2024-01-15T14:30:00Z"
+        total:
+          type: number
+          format: double
+          description: Total amount of the sale
+          example: 65.95
+        estado:
+          type: string
+          description: Current status of the sale
+          enum: [PENDIENTE, CONFIRMADA, ENVIADA, ENTREGADA, CANCELADA]
+          example: "CONFIRMADA"
+        items:
+          type: array
+          description: List of items in the sale
+          items:
+            $ref: '#/components/schemas/VentaItem'
+      required:
+        - ventaId
+        - usuarioId
+        - fechaVenta
+        - total
+        - estado
+
+    VentaItem:
+      type: object
+      description: Individual item within a sale transaction
+      properties:
+        ventaId:
+          type: integer
+          format: int64
+          description: Sale identifier
+          example: 1
+        productoId:
+          type: integer
+          format: int64
+          description: Product identifier
+          example: 101
+        cantidad:
+          type: integer
+          format: int64
+          description: Quantity purchased
+          example: 2
+        precioUnitario:
+          type: number
+          format: double
+          description: Unit price at time of purchase
+          example: 14.99
+        subtotal:
+          type: number
+          format: double
+          description: Subtotal for this item
+          example: 29.98
+        producto:
+          $ref: '#/components/schemas/Producto'
+      required:
+        - ventaId
+        - productoId
+        - cantidad
+        - precioUnitario
+        - subtotal
+
+    VentaStatus:
+      type: object
+      description: Status information for a sale transaction
+      properties:
+        ventaId:
+          type: integer
+          format: int64
+          description: Sale identifier
+          example: 1
+        carroId:
+          type: integer
+          format: int64
+          description: Original shopping cart identifier
+          example: 1
+        estado:
+          type: string
+          description: Current status of the sale
+          enum: [PENDIENTE, CONFIRMADA, ENVIADA, ENTREGADA, CANCELADA]
+          example: "CONFIRMADA"
+        fechaEstado:
+          type: string
+          format: date-time
+          description: Date and time of the last status update
+          example: "2024-01-15T14:30:00Z"
+        estimadoEntrega:
+          type: string
+          format: date-time
+          description: Estimated delivery date
+          example: "2024-01-20T10:00:00Z"
+        trackingNumber:
+          type: string
+          description: Shipping tracking number if available
+          example: "TRK123456789"
+      required:
+        - ventaId
+        - carroId
+        - estado
+
+    Usuario:
+      type: object
+      description: User entity representing a customer
+      properties:
+        usuarioId:
+          type: integer
+          format: int64
+          description: Unique identifier for the user
+          example: 1
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: "user@example.com"
+        nombre:
+          type: string
+          description: User's full name
+          example: "John Doe"
+        loginUltimo:
+          type: string
+          format: date-time
+          description: Date and time of the last login
+          example: "2024-01-15T10:00:00Z"
+      required:
+        - usuarioId
+        - email
+        - nombre
+
+    Error:
+      type: object
+      description: Standard error response structure
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+          description: Timestamp when the error occurred
+          example: "2024-01-15T14:30:00Z"
+        status:
+          type: integer
+          description: HTTP status code
+          example: 404
+        error:
+          type: string
+          description: Error type or category
+          example: "Not Found"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Shopping cart not found"
+        path:
+          type: string
+          description: Request path that caused the error
+          example: "/carritos/999"
+      required:
+        - timestamp
+        - status
+        - error
+        - message
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+security:
+  - bearerAuth: []
+
+externalDocs:
+  description: Additional documentation
+  url: https://docs.onlinestore.com

@@ -9,6 +9,7 @@ import { EventMessage, EventType, AccountInfo, AuthenticationResult } from '@azu
 import { loginRequest } from '../../auth-config';
 
 import { ProductoService } from '../../services/producto.service';
+import { ProductoAPI, CarroAPI, CarroCreateAPI } from '../../../../types';
 
 @Component({
   selector: 'app-principal',
@@ -19,11 +20,11 @@ import { ProductoService } from '../../services/producto.service';
 })
 export class PrincipalComponent implements OnInit {
 
-  productos = {};
-  carro = {};
+  productos: ProductoAPI[] = [];
+  carroItems: CarroAPI[] = [];
   usuarioId: number = 0;
   carro_items: number = 0;
-
+  isLoading: boolean = false;
   userEmail?: string;
 
   constructor(
@@ -31,7 +32,7 @@ export class PrincipalComponent implements OnInit {
     private productoService: ProductoService,
     private msalService: MsalService,
   ) {
-    this.getProducto();
+    this.getProductos();
     this.usuarioId = JSON.parse(localStorage.getItem("usuarioId") || "0");
     this.getCarro(localStorage.getItem("username") || "");
   }
@@ -60,26 +61,25 @@ export class PrincipalComponent implements OnInit {
     this.userEmail = account ? account.username : undefined;
   }
 
-  getProducto(): void {
-
+  getProductos(): void {
+    this.isLoading = true;
     this.productoService.getProducto().subscribe(
-      producto => {
-        console.log("Recuperando productos "+JSON.stringify(producto));
-        this.productos = producto;
+      (productos: ProductoAPI[]) => {
+        console.log("Recuperando productos", productos);
+        this.productos = productos;
+        this.isLoading = false;
       },
       error => {
         console.log("Se ha producido un error\nApi Recover error: "+error.message+" / "+error.status);
+        this.isLoading = false;
         if (error.message && error.message.includes('No authentication token available')) {
           this.login();
         }
-      },
-      () => { console.log('Ending!'); }
+      }
     );
-
   }
 
   agregarCarro(productoId: number): void {
-
     const token = localStorage.getItem("token");
     if (!token) {
       console.log("No authentication token found, redirecting to login");
@@ -87,43 +87,40 @@ export class PrincipalComponent implements OnInit {
       return;
     }
 
+    const username = localStorage.getItem("username");
+    if (!username) {
+      console.log("No username found, redirecting to login");
+      this.login();
+      return;
+    }
+
     console.log("Agregando producto "+productoId);
 
-    this.carro = {
-      carroId: null,
+    const carroData: CarroCreateAPI = {
+      usuarioId: username,
       productoId: productoId,
-      usuarioId: localStorage.getItem("username") || "",
-      cantidad: 1,
-      registroFecha: Date.now,
-      vigenciaFlag: 1,
-      ticketId:null
-
+      cantidad: 1
     };
 
-    this.productoService.setCarro(this.carro).subscribe(
-      response => {
-        console.log("Producto agregado "+response);
-        this.getCarro(localStorage.getItem("username") || "");
+    this.productoService.setCarro(carroData).subscribe(
+      (response: CarroAPI) => {
+        console.log("Producto agregado", response);
+        this.getCarro(username);
       },
       error => {
-        console.log("Se ha producido un problema al intentar agregar producto.");
-      },
-      () => {
-        console.log("Finalizado.");
+        console.log("Se ha producido un problema al intentar agregar producto:", error);
       }
     );
-
   }
 
-  getCarro(usuarioId: String): void {
-
+  getCarro(usuarioId: string): void {
     console.log("Usuario "+this.usuarioId+" "+usuarioId);
 
     this.productoService.getCarro(usuarioId).subscribe(
-      carro => {
-        console.log(JSON.stringify(carro));
-        this.carro = carro;
-        this.carro_items = Object.keys(this.carro).length;
+      (carroItems: CarroAPI[]) => {
+        console.log("Carro items:", carroItems);
+        this.carroItems = carroItems;
+        this.carro_items = carroItems.length;
       },
       error => {
         if (error && error.message && error.message.includes('No authentication token available')) {
@@ -133,7 +130,27 @@ export class PrincipalComponent implements OnInit {
         }
       }
     );
+  }
 
+  formatPrice(valorVenta: number): string {
+    return (valorVenta / 100).toFixed(2);
+  }
+
+  getProductImage(producto: ProductoAPI): string {
+    if (producto.imagenUri) {
+      return producto.imagenUri;
+    }
+    // Fallback to local images based on product ID
+    return `producto-img/producto_${producto.productoId}.jpeg`;
+  }
+
+  isProductInStock(producto: ProductoAPI): boolean {
+    return producto.stockActual > 0;
+  }
+
+  onImageError(event: Event, productoId: number): void {
+    const img = event.target as HTMLImageElement;
+    img.src = `producto-img/producto_${productoId}.jpeg`;
   }
 
   login(): void {
@@ -145,7 +162,6 @@ export class PrincipalComponent implements OnInit {
         this.router.navigate(["/principal"]);
         localStorage.setItem("token", result.idToken);
         localStorage.setItem("username", result.account.username);
-        // inserción de usuario
       }
     });
   }
@@ -158,7 +174,6 @@ export class PrincipalComponent implements OnInit {
   }
 
   goCarro(): void {
-    // Check if user is authenticated
     const token = localStorage.getItem("token");
     if (!token) {
       console.log("No authentication token found, redirecting to login");
@@ -168,7 +183,5 @@ export class PrincipalComponent implements OnInit {
 
     console.log("Navegando a carro")
     this.router.navigate(['/carro']);
-
   }
-
 }

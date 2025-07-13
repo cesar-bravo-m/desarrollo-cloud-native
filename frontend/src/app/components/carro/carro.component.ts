@@ -55,7 +55,7 @@ export class CarroComponent {
     this.getCarro(localStorage.getItem("username") || "");
   }
 
-  getCarro(usuarioId: String): void {
+  getCarro(usuarioId: string): void {
 
     console.log("[getCarro] Usuario "+this.usuarioId+" / "+usuarioId);
 
@@ -71,7 +71,7 @@ export class CarroComponent {
           const c2 = JSON.stringify(carro[c]);
           this.getProducto(carro[c]["productoId"]);
           console.log("[getCarro] - Producto "+this.productos);
-          
+
         }
 
       }
@@ -119,7 +119,7 @@ export class CarroComponent {
         );
 
         const headers = [['#', 'Producto', 'Valor']];
-        
+
         console.log("Productos "+JSON.stringify(this.productos));
 
         let data = [];
@@ -138,7 +138,7 @@ export class CarroComponent {
         });
 
         doc.save('ticket-'+this.ticket_numero+'.pdf');
-  
+
       }
     );
 
@@ -151,7 +151,7 @@ export class CarroComponent {
 
   }
 
-  getProducto(productoId: String): any {
+  getProducto(productoId: number): any {
 
 
     this.productoService.getProductoId(Number(productoId)).subscribe(

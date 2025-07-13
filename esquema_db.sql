@@ -4,6 +4,7 @@ CREATE TABLE eft_producto (
     sku                VARCHAR2(50)    NOT NULL UNIQUE,
     nombre             VARCHAR2(150)   NOT NULL,
     descripcion        CLOB,
+    imagen_uri         VARCHAR2(1024),
     precio             NUMBER(18,2)    NOT NULL,      -- sin código de divisa
     cantidad_stock     NUMBER          NOT NULL,
     creado_en          TIMESTAMP WITH TIME ZONE
