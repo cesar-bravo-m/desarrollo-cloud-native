@@ -95,6 +95,7 @@ public class VentasController {
                 .toEntity(Object.class);
     }
     
+    // Quitar todos los productos del carrito
     @DeleteMapping("carritos/{carritoId}/items")
     public Mono<ResponseEntity<Object>> clearCarrito(@PathVariable Long carritoId) {
         return ventasWebClient.delete()
@@ -103,6 +104,7 @@ public class VentasController {
                 .toEntity(Object.class);
     }
     
+    // Actualizar la cantidad de un producto en el carrito
     @PutMapping("carritos/{carritoId}/items/{productoId}")
     public Mono<ResponseEntity<Object>> updateCarritoItemQuantity(@PathVariable Long carritoId, 
                                                                  @PathVariable Long productoId, 
@@ -153,35 +155,9 @@ public class VentasController {
                 .toEntity(Object.class);
     }
     
-    @PostMapping("ventas")
-    public Mono<ResponseEntity<Object>> createVenta(@RequestBody Object venta) {
-        return ventasWebClient.post()
-                .uri("/api/ventas")
-                .bodyValue(venta)
-                .retrieve()
-                .toEntity(Object.class);
-    }
-    
     @GetMapping("ventas/{id}")
     public Mono<ResponseEntity<Object>> getVentaById(@PathVariable Long id) {
         return ventasWebClient.get()
-                .uri("/api/ventas/{id}", id)
-                .retrieve()
-                .toEntity(Object.class);
-    }
-    
-    @PutMapping("ventas/{id}")
-    public Mono<ResponseEntity<Object>> updateVenta(@PathVariable Long id, @RequestBody Object venta) {
-        return ventasWebClient.put()
-                .uri("/api/ventas/{id}", id)
-                .bodyValue(venta)
-                .retrieve()
-                .toEntity(Object.class);
-    }
-    
-    @DeleteMapping("ventas/{id}")
-    public Mono<ResponseEntity<Object>> deleteVenta(@PathVariable Long id) {
-        return ventasWebClient.delete()
                 .uri("/api/ventas/{id}", id)
                 .retrieve()
                 .toEntity(Object.class);
@@ -191,30 +167,6 @@ public class VentasController {
     public Mono<ResponseEntity<Object>> getVentasByUsuario(@PathVariable String usuarioId) {
         return ventasWebClient.get()
                 .uri("/api/ventas/usuario/{usuarioId}", usuarioId)
-                .retrieve()
-                .toEntity(Object.class);
-    }
-    
-    @GetMapping("ventas/usuario/{usuarioId}/ordenadas")
-    public Mono<ResponseEntity<Object>> getVentasOrdenadas(@PathVariable String usuarioId) {
-        return ventasWebClient.get()
-                .uri("/api/ventas/usuario/{usuarioId}/ordenadas", usuarioId)
-                .retrieve()
-                .toEntity(Object.class);
-    }
-    
-    @GetMapping("ventas/usuario/{usuarioId}/total")
-    public Mono<ResponseEntity<Object>> getVentasTotal(@PathVariable String usuarioId) {
-        return ventasWebClient.get()
-                .uri("/api/ventas/usuario/{usuarioId}/total", usuarioId)
-                .retrieve()
-                .toEntity(Object.class);
-    }
-    
-    @GetMapping("ventas/carrito/{carritoId}")
-    public Mono<ResponseEntity<Object>> getVentaByCarrito(@PathVariable Long carritoId) {
-        return ventasWebClient.get()
-                .uri("/api/ventas/carrito/{carritoId}", carritoId)
                 .retrieve()
                 .toEntity(Object.class);
     }
@@ -231,11 +183,11 @@ public class VentasController {
                 .exchange()
                 .flatMap(response -> response.toEntity(Object.class));
     }
-    
-    @PostMapping("ventas/{id}/queue")
-    public Mono<ResponseEntity<Object>> sendVentaToQueue(@PathVariable Long id) {
-        return ventasWebClient.post()
-                .uri("/api/ventas/{id}/queue", id)
+
+    @GetMapping("ventas/carrito/{carritoId}/status")
+    public Mono<ResponseEntity<Object>> getVentaStatus(@PathVariable Long carritoId) {
+        return ventasWebClient.get()
+                .uri("/api/ventas/carrito/{carritoId}/status", carritoId)
                 .retrieve()
                 .toEntity(Object.class);
     }
