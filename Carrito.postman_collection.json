@@ -1,0 +1,543 @@
+{
+	"info": {
+		"_postman_id": "22ff9163-fa0e-4f1d-bf13-00d62bbca139",
+		"name": "Carrito",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26434356"
+	},
+	"item": [
+		{
+			"name": "Obtener carritos",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"carroId\": null,\r\n    \"productoId\": 4,\r\n    \"usuarioId\": \"cesa.bravo@duocuc.cl\",\r\n    \"cantidad\": 1,\r\n    \"registroFecha\": \"2025-06-06\",\r\n    \"vigenciaFlag\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener carrito por id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"carroId\": null,\r\n    \"productoId\": 4,\r\n    \"usuarioId\": \"cesa.bravo@duocuc.cl\",\r\n    \"cantidad\": 1,\r\n    \"registroFecha\": \"2025-06-06\",\r\n    \"vigenciaFlag\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crear carrito",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"usuarioId\": \"8c0a1234-3f7b-4a2e-b1c9-111111111111\",\r\n  \"estado\": \"A\",\r\n  \"creadoEn\": \"2024-01-15T10:30:00Z\",\r\n  \"actualizadoEn\": null\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar carrito",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"carritoId\": 3,\r\n  \"usuarioId\": \"8c0a1234-3f7b-4a2e-b1c9-111111111111\",\r\n  \"estado\": \"X\",\r\n  \"creadoEn\": \"2024-01-15T10:30:00Z\",\r\n  \"actualizadoEn\": null\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/3",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener carritos por usuario id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"carroId\": null,\r\n    \"productoId\": 4,\r\n    \"usuarioId\": \"cesa.bravo@duocuc.cl\",\r\n    \"cantidad\": 1,\r\n    \"registroFecha\": \"2025-06-06\",\r\n    \"vigenciaFlag\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/usuario/8c0a1234-3f7b-4a2e-b1c9-111111111111",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"usuario",
+						"8c0a1234-3f7b-4a2e-b1c9-111111111111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener productos del carrito",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"carroId\": null,\r\n    \"productoId\": 4,\r\n    \"usuarioId\": \"cesa.bravo@duocuc.cl\",\r\n    \"cantidad\": 1,\r\n    \"registroFecha\": \"2025-06-06\",\r\n    \"vigenciaFlag\": 1\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/5/items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"5",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Agregar producto al carrito",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/5/items?productoId=1&cantidad=1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"5",
+						"items"
+					],
+					"query": [
+						{
+							"key": "productoId",
+							"value": "1"
+						},
+						{
+							"key": "cantidad",
+							"value": "1"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Quitar todos los producto del carrito",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/3/items",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"3",
+						"items"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Modificar cantidad de producto del carrito",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/3/items/1?cantidad=2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"3",
+						"items",
+						"1"
+					],
+					"query": [
+						{
+							"key": "cantidad",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Quitar producto del carrito",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/3/items/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"3",
+						"items",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener total del carrito",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/3/total",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"3",
+						"total"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Abandonar carrito",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/3/abandon",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"3",
+						"abandon"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Borrar carrito",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer ddfsdfeyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IkNOdjBPSTNSd3FsSEZFVm5hb01Bc2hDSDJYRSJ9.eyJhdWQiOiI5YmJiN2M0NC1iYTJlLTRlYjUtYmVlYS1hNzgxNWNhM2E0ZmQiLCJpc3MiOiJodHRwczovLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS5jaWFtbG9naW4uY29tLzNkODRkNzJkLTU2YmUtNDVhOS1hMDYwLWEzM2QzM2Q5OTJlOS92Mi4wIiwiaWF0IjoxNzQ5MzQwMjU0LCJuYmYiOjE3NDkzNDAyNTQsImV4cCI6MTc0OTM0NDE1NCwiYWlvIjoiQVZRQXEvOFpBQUFBZHc2cHdUYlhZM05lWTFDaFNwUVNmL1hSbXEyV0lkV0pjNjNvM1hvc1hHVGtRdDdQNmdzUHIxYldHZHNIdTFFam9DMDhNczVDT3VyMjE0T1l6dFAvTy9CWVljSTRsNWVmUzdUQ1VQZ0pndUU9IiwibmFtZSI6InVua25vd24iLCJub25jZSI6IjAxOTc0Y2QyLTViZDEtN2I0ZC1iZDNkLTRiNGM5ODhjOWExOCIsIm9pZCI6IjZiMTlhZWU2LTQ5YTktNGQ0OC05NDZlLTZmZGFmOThlODI5NSIsInByZWZlcnJlZF91c2VybmFtZSI6ImNlc2EuYnJhdm9AZHVvY3VjLmNsIiwicmgiOiIxLkFjOEFMZGVFUGI1V3FVV2dZS005TTltUzZVUjh1NXN1dXJWT3Z1cW5nVnlqcFAzUEFGVFBBQS4iLCJzaWQiOiIwMDVjYTZkOS1mOGQxLWViYzItYjhhNy1mYTMwMmZjNGVlOGIiLCJzdWIiOiJleHg5M0R1QXF2YUJhOWp4WWM2dEh0TTFwNXlXcjRINlprYnhQckFKZk53IiwidGlkIjoiM2Q4NGQ3MmQtNTZiZS00NWE5LWEwNjAtYTMzZDMzZDk5MmU5IiwidXRpIjoiTkpJY3E3QkJSVW1mY3JFUF9MVUVBQSIsInZlciI6IjIuMCJ9.W4JOO4NldmrMBYTagHmlqHmKQA4GwzbFU6WKAzPHMJCj_n9qYEf-qyp56AXoi62JlNcV6lGNHjky74OXtsTb9hITS6R5rZwyd6yAXeuy13ioPfn00x7k1-JcCVT1i3WRJFTTWFxuPmAbe_LxlgEV-qWw_F6ekp3zn9nw5qCKXxe-xyCNiac-ynczF7xJm6-AY1n-aG30YAi-ExGl2AugIIiDhXZweF2ETYa8wOvapdFKrWPyKY4-NP5OUYdzmbDWBspWesYc-IprfX-je4uvanntNJYy0P5xd0tBLy1M-NPp2hx5qA3kNMYAYkl3nEmZP0D1v2z1Kp8DPoUCSY4Nxg",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/carritos/2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"carritos",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

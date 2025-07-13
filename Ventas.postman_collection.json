@@ -1,0 +1,131 @@
+{
+	"info": {
+		"_postman_id": "0658b421-322e-4d17-8583-fbd08cd038ec",
+		"name": "Ventas",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26434356"
+	},
+	"item": [
+		{
+			"name": "Obtener todas las ventas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/ventas",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ventas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener venta por id",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/ventas/1",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ventas",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener ventas por usuario",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/ventas/usuario/8c0a1234-3f7b-4a2e-b1c9-111111111111",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ventas",
+						"usuario",
+						"8c0a1234-3f7b-4a2e-b1c9-111111111111"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener estado de venta por carrito",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/ventas/carrito/5/status",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ventas",
+						"carrito",
+						"5",
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Checkout",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/ventas/checkout?carritoId=5&usuarioId=8c0a1234-3f7b-4a2e-b1c9-111111111111",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"ventas",
+						"checkout"
+					],
+					"query": [
+						{
+							"key": "carritoId",
+							"value": "5"
+						},
+						{
+							"key": "usuarioId",
+							"value": "8c0a1234-3f7b-4a2e-b1c9-111111111111"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
