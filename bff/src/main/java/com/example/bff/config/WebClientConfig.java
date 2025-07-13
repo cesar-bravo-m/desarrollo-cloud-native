@@ -7,11 +7,17 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
     
-    @Bean
-    public WebClient webClient() {
+    @Bean("productosWebClient")
+    public WebClient productosWebClient() {
         return WebClient.builder()
-                .baseUrl("http://api:8081")
-                //.baseUrl("http://localhost:8081")
+                .baseUrl("http://localhost:8083") // Microservicio de Productos
+                .build();
+    }
+    
+    @Bean("ventasWebClient")
+    public WebClient ventasWebClient() {
+        return WebClient.builder()
+                .baseUrl("http://localhost:8084") // Microservicio de Carrito y Ventas
                 .build();
     }
 } 

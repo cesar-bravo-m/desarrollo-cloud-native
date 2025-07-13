@@ -1,0 +1,1512 @@
+openapi: 3.0.3
+info:
+  title: Microservicio de Ventas y Carrito
+  description: |
+    API completa para gestión de tienda online con funcionalidades de:
+    - Gestión de productos (inventario, búsqueda, stock)
+    - Gestión de carritos de compras (agregar/remover items, calcular totales)
+    - Procesamiento de ventas (checkout, historial de compras)
+    - Integración con RabbitMQ para procesamiento asíncrono
+  version: 2.0.0
+  contact:
+    name: Grupo 11 - Desarrollo Cloud Native
+    email: grupo11@tienda.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:8081
+    description: Servidor de desarrollo local
+  - url: https://api-tienda.azurewebsites.net
+    description: Servidor de producción en Azure
+
+tags:
+  - name: productos
+    description: Operaciones relacionadas con la gestión de productos
+  - name: carritos
+    description: Operaciones relacionadas con carritos de compras
+  - name: ventas
+    description: Operaciones relacionadas con ventas y checkout
+  - name: health
+    description: Endpoints de salud y monitoreo
+
+paths:
+  # ===============================================
+  # PRODUCTOS - Gestión de catálogo de productos
+  # ===============================================
+  /api/productos:
+    get:
+      tags:
+        - productos
+      summary: Obtener todos los productos
+      description: |
+        Retorna una lista completa de todos los productos disponibles en el catálogo.
+        Incluye información de precios, stock disponible y descripción.
+      responses:
+        '200':
+          description: Lista de productos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+              examples:
+                productos_ejemplo:
+                  summary: Ejemplo de lista de productos
+                  value:
+                    - productoId: 1
+                      sku: "LAPTOP-001"
+                      nombre: "Laptop HP Pavilion"
+                      descripcion: "Laptop HP Pavilion 15.6 pulgadas, 8GB RAM, 256GB SSD"
+                      precio: 899.99
+                      cantidadStock: 25
+                      creadoEn: "2024-01-15T10:30:00Z"
+                      actualizadoEn: "2024-01-20T14:20:00Z"
+                    - productoId: 2
+                      sku: "MOUSE-002"
+                      nombre: "Mouse Inalámbrico Logitech"
+                      descripcion: "Mouse inalámbrico ergonómico con receptor USB"
+                      precio: 29.99
+                      cantidadStock: 150
+                      creadoEn: "2024-01-16T09:15:00Z"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - productos
+      summary: Crear nuevo producto
+      description: |
+        Crea un nuevo producto en el catálogo. Requiere información básica como SKU único,
+        nombre, precio y stock inicial. El sistema asigna automáticamente la fecha de creación.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoRequest'
+            examples:
+              nuevo_producto:
+                summary: Ejemplo de creación de producto
+                value:
+                  sku: "TECLADO-003"
+                  nombre: "Teclado Mecánico RGB"
+                  descripcion: "Teclado mecánico con iluminación RGB y switches Cherry MX"
+                  precio: 159.99
+                  cantidadStock: 50
+      responses:
+        '201':
+          description: Producto creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '400':
+          description: Datos de entrada inválidos (SKU duplicado, precio negativo, etc.)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Error interno del servidor
+
+  /api/productos/{id}:
+    get:
+      tags:
+        - productos
+      summary: Obtener producto por ID
+      description: |
+        Retorna la información detallada de un producto específico basado en su ID único.
+        Incluye toda la información del producto incluyendo stock actual.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del producto
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: Producto encontrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Producto no encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    put:
+      tags:
+        - productos
+      summary: Actualizar producto existente
+      description: |
+        Actualiza la información de un producto existente. Permite modificar nombre,
+        descripción, precio y stock. El sistema actualiza automáticamente la fecha de modificación.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del producto a actualizar
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductoRequest'
+      responses:
+        '200':
+          description: Producto actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Producto no encontrado
+        '400':
+          description: Datos de entrada inválidos
+
+    delete:
+      tags:
+        - productos
+      summary: Eliminar producto
+      description: |
+        Elimina un producto del catálogo. Esta acción es irreversible.
+        ⚠️ **Advertencia**: Verificar que no existan referencias en carritos activos.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del producto a eliminar
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Producto eliminado exitosamente
+        '404':
+          description: Producto no encontrado
+        '409':
+          description: Conflicto - Producto referenciado en carritos activos
+
+  /api/productos/sku/{sku}:
+    get:
+      tags:
+        - productos
+      summary: Buscar producto por SKU
+      description: |
+        Busca un producto específico utilizando su SKU único. Útil para búsquedas
+        por código de barras o identificadores externos.
+      parameters:
+        - name: sku
+          in: path
+          required: true
+          description: SKU único del producto
+          schema:
+            type: string
+            example: "LAPTOP-001"
+      responses:
+        '200':
+          description: Producto encontrado por SKU
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Producto'
+        '404':
+          description: Producto con SKU especificado no encontrado
+
+  /api/productos/search:
+    get:
+      tags:
+        - productos
+      summary: Búsqueda de productos por nombre
+      description: |
+        Realiza una búsqueda flexible de productos por nombre utilizando coincidencias parciales.
+        No distingue entre mayúsculas y minúsculas. Útil para funcionalidades de autocompletado.
+      parameters:
+        - name: nombre
+          in: query
+          required: true
+          description: Término de búsqueda para el nombre del producto
+          schema:
+            type: string
+            example: "laptop"
+      responses:
+        '200':
+          description: Resultados de búsqueda obtenidos exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+
+  /api/productos/in-stock:
+    get:
+      tags:
+        - productos
+      summary: Obtener productos en stock
+      description: |
+        Retorna únicamente los productos que tienen stock disponible (cantidad > 0).
+        Útil para mostrar solo productos disponibles para compra.
+      responses:
+        '200':
+          description: Lista de productos con stock disponible
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+
+  /api/productos/min-stock:
+    get:
+      tags:
+        - productos
+      summary: Obtener productos con stock mínimo
+      description: |
+        Retorna productos que tienen una cantidad de stock mayor al mínimo especificado.
+        Útil para reportes de inventario y alertas de stock bajo.
+      parameters:
+        - name: minStock
+          in: query
+          required: true
+          description: Cantidad mínima de stock requerida
+          schema:
+            type: integer
+            format: int64
+            example: 10
+      responses:
+        '200':
+          description: Lista de productos con stock mayor al mínimo
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Producto'
+
+  /api/productos/{id}/stock:
+    put:
+      tags:
+        - productos
+      summary: Actualizar stock de producto
+      description: |
+        Actualiza la cantidad de stock de un producto específico. Permite establecer
+        una cantidad exacta de inventario disponible.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del producto
+          schema:
+            type: integer
+            format: int64
+        - name: cantidad
+          in: query
+          required: true
+          description: Nueva cantidad de stock
+          schema:
+            type: integer
+            format: int64
+            example: 100
+      responses:
+        '200':
+          description: Stock actualizado exitosamente
+        '404':
+          description: Producto no encontrado
+        '400':
+          description: Cantidad inválida (negativa)
+
+  /api/productos/{id}/reduce-stock:
+    put:
+      tags:
+        - productos
+      summary: Reducir stock de producto
+      description: |
+        Reduce la cantidad de stock de un producto en la cantidad especificada.
+        Se utiliza principalmente durante el proceso de checkout para descontar
+        productos vendidos del inventario.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del producto
+          schema:
+            type: integer
+            format: int64
+        - name: cantidad
+          in: query
+          required: true
+          description: Cantidad a reducir del stock
+          schema:
+            type: integer
+            format: int64
+            example: 5
+      responses:
+        '200':
+          description: Stock reducido exitosamente
+        '404':
+          description: Producto no encontrado
+        '400':
+          description: Stock insuficiente o cantidad inválida
+
+  # ===============================================
+  # CARRITOS - Gestión de carritos de compras
+  # ===============================================
+  /api/carritos:
+    get:
+      tags:
+        - carritos
+      summary: Obtener todos los carritos
+      description: |
+        Retorna una lista de todos los carritos en el sistema. Incluye carritos activos,
+        completados y abandonados. Principalmente para uso administrativo.
+      responses:
+        '200':
+          description: Lista de carritos obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Carrito'
+
+    post:
+      tags:
+        - carritos
+      summary: Crear nuevo carrito
+      description: |
+        Crea un nuevo carrito de compras para un usuario. El carrito se crea en estado
+        activo ('A') y se asigna automáticamente la fecha de creación.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarritoRequest'
+            examples:
+              nuevo_carrito:
+                summary: Ejemplo de creación de carrito
+                value:
+                  usuarioId: "user-123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '201':
+          description: Carrito creado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carrito'
+        '400':
+          description: Datos de entrada inválidos
+
+  /api/carritos/{id}:
+    get:
+      tags:
+        - carritos
+      summary: Obtener carrito por ID
+      description: |
+        Retorna la información detallada de un carrito específico incluyendo
+        su estado actual y metadatos de creación/actualización.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Carrito encontrado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carrito'
+        '404':
+          description: Carrito no encontrado
+
+    put:
+      tags:
+        - carritos
+      summary: Actualizar carrito
+      description: |
+        Actualiza la información de un carrito existente. Permite cambiar el estado
+        del carrito (activo, completado, abandonado) y actualiza la fecha de modificación.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CarritoRequest'
+      responses:
+        '200':
+          description: Carrito actualizado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Carrito'
+        '404':
+          description: Carrito no encontrado
+
+    delete:
+      tags:
+        - carritos
+      summary: Eliminar carrito
+      description: |
+        Elimina un carrito y todos sus items asociados. Esta acción es irreversible.
+        ⚠️ **Advertencia**: Solo eliminar carritos abandonados o de prueba.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único del carrito a eliminar
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Carrito eliminado exitosamente
+        '404':
+          description: Carrito no encontrado
+
+  /api/carritos/usuario/{usuarioId}:
+    get:
+      tags:
+        - carritos
+      summary: Obtener carritos por usuario
+      description: |
+        Retorna todos los carritos asociados a un usuario específico.
+        Incluye carritos en todos los estados (activo, completado, abandonado).
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: ID único del usuario (GUID de Azure AD)
+          schema:
+            type: string
+            example: "user-123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Lista de carritos del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Carrito'
+
+  /api/carritos/{carritoId}/items:
+    get:
+      tags:
+        - carritos
+      summary: Obtener items del carrito
+      description: |
+        Retorna todos los items (productos) contenidos en un carrito específico.
+        Incluye información del producto, cantidad y precio unitario al momento de agregar.
+      parameters:
+        - name: carritoId
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Lista de items del carrito
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CarritoItem'
+
+    post:
+      tags:
+        - carritos
+      summary: Agregar item al carrito
+      description: |
+        Agrega un producto al carrito con la cantidad especificada. Si el producto
+        ya existe en el carrito, se suma la cantidad. El precio se congela al momento
+        de agregar el item.
+      parameters:
+        - name: carritoId
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+        - name: productoId
+          in: query
+          required: true
+          description: ID único del producto a agregar
+          schema:
+            type: integer
+            format: int64
+        - name: cantidad
+          in: query
+          required: true
+          description: Cantidad del producto a agregar
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            example: 2
+      responses:
+        '201':
+          description: Item agregado al carrito exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CarritoItem'
+        '400':
+          description: Datos inválidos (producto no existe, cantidad inválida)
+        '404':
+          description: Carrito no encontrado
+
+    delete:
+      tags:
+        - carritos
+      summary: Vaciar carrito
+      description: |
+        Elimina todos los items del carrito, dejándolo vacío pero manteniendo
+        el carrito activo. Útil para reiniciar el proceso de compra.
+      parameters:
+        - name: carritoId
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Carrito vaciado exitosamente
+        '404':
+          description: Carrito no encontrado
+
+  /api/carritos/{carritoId}/items/{productoId}:
+    put:
+      tags:
+        - carritos
+      summary: Actualizar cantidad de item
+      description: |
+        Actualiza la cantidad de un producto específico en el carrito.
+        Si la cantidad es 0, el item se elimina del carrito.
+      parameters:
+        - name: carritoId
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+        - name: productoId
+          in: path
+          required: true
+          description: ID único del producto
+          schema:
+            type: integer
+            format: int64
+        - name: cantidad
+          in: query
+          required: true
+          description: Nueva cantidad del producto
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+            example: 3
+      responses:
+        '200':
+          description: Cantidad actualizada exitosamente
+        '404':
+          description: Carrito o producto no encontrado en el carrito
+        '400':
+          description: Cantidad inválida
+
+    delete:
+      tags:
+        - carritos
+      summary: Remover item del carrito
+      description: |
+        Elimina completamente un producto específico del carrito,
+        independientemente de la cantidad que tenga.
+      parameters:
+        - name: carritoId
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+        - name: productoId
+          in: path
+          required: true
+          description: ID único del producto a remover
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Item removido exitosamente
+        '404':
+          description: Carrito o producto no encontrado en el carrito
+
+  /api/carritos/{carritoId}/total:
+    get:
+      tags:
+        - carritos
+      summary: Calcular total del carrito
+      description: |
+        Calcula el monto total del carrito sumando (cantidad × precio_unitario)
+        de todos los items. Retorna el total en la moneda base del sistema.
+      parameters:
+        - name: carritoId
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Total del carrito calculado exitosamente
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                    format: double
+                    description: Monto total del carrito
+                    example: 1289.97
+                  moneda:
+                    type: string
+                    description: Código de moneda
+                    example: "USD"
+        '404':
+          description: Carrito no encontrado
+
+  /api/carritos/{carritoId}/abandon:
+    put:
+      tags:
+        - carritos
+      summary: Abandonar carrito
+      description: |
+        Marca un carrito como abandonado (estado 'X'). Los carritos abandonados
+        no pueden ser procesados en checkout pero se mantienen para análisis.
+      parameters:
+        - name: carritoId
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Carrito marcado como abandonado exitosamente
+        '404':
+          description: Carrito no encontrado
+
+  # ===============================================
+  # VENTAS - Gestión de ventas y checkout
+  # ===============================================
+  /api/ventas:
+    get:
+      tags:
+        - ventas
+      summary: Obtener todas las ventas
+      description: |
+        Retorna una lista completa de todas las ventas realizadas en el sistema.
+        Incluye información de montos, fechas y enlaces a recibos.
+        Principalmente para uso administrativo y reportes.
+      responses:
+        '200':
+          description: Lista de ventas obtenida exitosamente
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Venta'
+
+    post:
+      tags:
+        - ventas
+      summary: Crear venta manualmente
+      description: |
+        Crea una nueva venta de forma manual. Generalmente se utiliza el endpoint
+        de checkout automático, pero este permite crear ventas con datos específicos.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VentaRequest'
+      responses:
+        '201':
+          description: Venta creada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venta'
+        '400':
+          description: Datos de entrada inválidos
+
+  /api/ventas/{id}:
+    get:
+      tags:
+        - ventas
+      summary: Obtener venta por ID
+      description: |
+        Retorna la información detallada de una venta específica incluyendo
+        el monto total, fecha de creación y enlace al recibo generado.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único de la venta
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Venta encontrada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venta'
+        '404':
+          description: Venta no encontrada
+
+    put:
+      tags:
+        - ventas
+      summary: Actualizar venta
+      description: |
+        Actualiza la información de una venta existente. Permite modificar
+        el enlace del recibo o información adicional.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único de la venta
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VentaRequest'
+      responses:
+        '200':
+          description: Venta actualizada exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venta'
+        '404':
+          description: Venta no encontrada
+
+    delete:
+      tags:
+        - ventas
+      summary: Eliminar venta
+      description: |
+        Elimina una venta del sistema. ⚠️ **Advertencia**: Esta acción es irreversible
+        y puede afectar la integridad de los reportes financieros.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único de la venta a eliminar
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: Venta eliminada exitosamente
+        '404':
+          description: Venta no encontrada
+
+  /api/ventas/usuario/{usuarioId}:
+    get:
+      tags:
+        - ventas
+      summary: Obtener ventas por usuario
+      description: |
+        Retorna todas las ventas realizadas por un usuario específico.
+        Útil para mostrar el historial de compras del usuario.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: ID único del usuario (GUID de Azure AD)
+          schema:
+            type: string
+            example: "user-123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '200':
+          description: Lista de ventas del usuario
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Venta'
+
+  /api/ventas/usuario/{usuarioId}/ordenadas:
+    get:
+      tags:
+        - ventas
+      summary: Obtener ventas ordenadas por fecha
+      description: |
+        Retorna las ventas de un usuario ordenadas por fecha de creación descendente
+        (más recientes primero). Ideal para mostrar el historial de compras.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: ID único del usuario (GUID de Azure AD)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Lista de ventas ordenadas por fecha
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Venta'
+
+  /api/ventas/usuario/{usuarioId}/total:
+    get:
+      tags:
+        - ventas
+      summary: Obtener total de ventas por usuario
+      description: |
+        Calcula el monto total de todas las compras realizadas por un usuario.
+        Útil para programas de lealtad y análisis de comportamiento del cliente.
+      parameters:
+        - name: usuarioId
+          in: path
+          required: true
+          description: ID único del usuario (GUID de Azure AD)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Total de ventas del usuario
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalVentas:
+                    type: number
+                    format: double
+                    description: Monto total de todas las ventas del usuario
+                    example: 2459.85
+                  cantidadVentas:
+                    type: integer
+                    description: Número total de ventas realizadas
+                    example: 8
+                  moneda:
+                    type: string
+                    example: "USD"
+
+  /api/ventas/carrito/{carritoId}:
+    get:
+      tags:
+        - ventas
+      summary: Obtener venta por carrito
+      description: |
+        Retorna la venta asociada a un carrito específico. Útil para verificar
+        si un carrito ya fue procesado y obtener la información de la venta.
+      parameters:
+        - name: carritoId
+          in: path
+          required: true
+          description: ID único del carrito
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Venta encontrada para el carrito
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venta'
+        '404':
+          description: No se encontró venta para el carrito especificado
+
+  /api/ventas/checkout:
+    post:
+      tags:
+        - ventas
+      summary: Procesar checkout (Función Principal)
+      description: |
+        **🛒 FUNCIÓN PRINCIPAL DEL E-COMMERCE**
+
+        Procesa el checkout completo de un carrito de compras. Este endpoint realiza:
+
+        1. **Validación del carrito**: Verifica que esté activo y tenga items
+        2. **Cálculo del total**: Suma todos los items con sus precios congelados
+        3. **Reducción de stock**: Actualiza el inventario de productos
+        4. **Creación de venta**: Genera el registro de venta
+        5. **Actualización de carrito**: Marca el carrito como completado
+        6. **Generación de recibo**: Crea un enlace al recibo en PDF
+        7. **Envío a cola**: Envía la venta a RabbitMQ para procesamiento asíncrono
+
+        ⚠️ **Importante**: Esta operación es transaccional y atómica.
+      parameters:
+        - name: carritoId
+          in: query
+          required: true
+          description: ID único del carrito a procesar
+          schema:
+            type: integer
+            format: int64
+            example: 123
+        - name: usuarioId
+          in: query
+          required: true
+          description: ID único del usuario que realiza la compra
+          schema:
+            type: string
+            example: "user-123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        '201':
+          description: Checkout procesado exitosamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Venta'
+              examples:
+                checkout_exitoso:
+                  summary: Ejemplo de checkout exitoso
+                  value:
+                    ventaId: 1001
+                    carritoId: 123
+                    usuarioId: "user-123e4567-e89b-12d3-a456-426614174000"
+                    montoTotal: 1289.97
+                    urlRecibo: "https://receipts.store.com/receipt-1643723400000.pdf"
+                    creadoEn: "2024-01-15T15:30:00Z"
+        '400':
+          description: |
+            Error en el checkout. Posibles causas:
+            - Carrito no está activo
+            - Carrito vacío
+            - Stock insuficiente
+            - Usuario inválido
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Carrito no encontrado
+        '409':
+          description: Carrito ya procesado anteriormente
+
+  /api/ventas/{id}/queue:
+    post:
+      tags:
+        - ventas
+      summary: Enviar venta a cola de procesamiento
+      description: |
+        Envía una venta específica a la cola de RabbitMQ para procesamiento asíncrono.
+        Útil para reenviar ventas que fallaron en el procesamiento inicial.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID único de la venta
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Venta enviada a cola exitosamente
+        '404':
+          description: Venta no encontrada
+
+  # ===============================================
+  # HEALTH CHECK - Monitoreo y salud del sistema
+  # ===============================================
+  /hello:
+    get:
+      tags:
+        - health
+      summary: Health check básico
+      description: |
+        Endpoint básico de verificación de salud del sistema. Retorna un mensaje
+        simple para confirmar que el servicio está funcionando correctamente.
+      responses:
+        '200':
+          description: Servicio funcionando correctamente
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Hello, World!"
+
+# ===============================================
+# COMPONENTES REUTILIZABLES
+# ===============================================
+components:
+  schemas:
+    # Esquema principal de Producto
+    Producto:
+      type: object
+      description: |
+        Representa un producto en el catálogo de la tienda con toda su información
+        de inventario, precios y metadatos de gestión.
+      properties:
+        productoId:
+          type: integer
+          format: int64
+          description: ID único del producto generado automáticamente
+          example: 1
+        sku:
+          type: string
+          maxLength: 50
+          description: |
+            Código SKU único del producto. Utilizado para identificación externa,
+            códigos de barras e integración con sistemas de inventario.
+          example: "LAPTOP-001"
+        nombre:
+          type: string
+          maxLength: 150
+          description: Nombre comercial del producto
+          example: "Laptop HP Pavilion 15.6\""
+        descripcion:
+          type: string
+          description: |
+            Descripción detallada del producto. Soporta texto largo (CLOB)
+            para información técnica y características.
+          example: "Laptop HP Pavilion 15.6 pulgadas, procesador Intel Core i5, 8GB RAM DDR4, 256GB SSD, Windows 11"
+        precio:
+          type: number
+          format: double
+          multipleOf: 0.01
+          description: |
+            Precio unitario del producto en la moneda base del sistema.
+            Soporta hasta 2 decimales para centavos.
+          example: 899.99
+        cantidadStock:
+          type: integer
+          format: int64
+          minimum: 0
+          description: |
+            Cantidad disponible en inventario. Se actualiza automáticamente
+            durante las ventas.
+          example: 25
+        creadoEn:
+          type: string
+          format: date-time
+          description: |
+            Fecha y hora de creación del producto en formato ISO 8601 con zona horaria.
+          example: "2024-01-15T10:30:00Z"
+        actualizadoEn:
+          type: string
+          format: date-time
+          description: |
+            Fecha y hora de última actualización del producto.
+            Null si nunca se ha actualizado.
+          example: "2024-01-20T14:20:00Z"
+      required:
+        - productoId
+        - sku
+        - nombre
+        - precio
+        - cantidadStock
+        - creadoEn
+
+    # Esquema para crear/actualizar productos
+    ProductoRequest:
+      type: object
+      description: |
+        Esquema para crear o actualizar un producto. No incluye campos
+        generados automáticamente como ID y fechas.
+      properties:
+        sku:
+          type: string
+          maxLength: 50
+          description: Código SKU único del producto
+          example: "TECLADO-003"
+        nombre:
+          type: string
+          maxLength: 150
+          description: Nombre comercial del producto
+          example: "Teclado Mecánico RGB"
+        descripcion:
+          type: string
+          description: Descripción detallada del producto
+          example: "Teclado mecánico con iluminación RGB personalizable y switches Cherry MX Blue"
+        precio:
+          type: number
+          format: double
+          multipleOf: 0.01
+          minimum: 0.01
+          description: Precio unitario del producto
+          example: 159.99
+        cantidadStock:
+          type: integer
+          format: int64
+          minimum: 0
+          description: Cantidad inicial en inventario
+          example: 50
+      required:
+        - sku
+        - nombre
+        - precio
+        - cantidadStock
+
+    # Esquema principal de Carrito
+    Carrito:
+      type: object
+      description: |
+        Representa un carrito de compras con su estado y metadatos.
+        Los carritos pueden estar activos, completados o abandonados.
+      properties:
+        carritoId:
+          type: integer
+          format: int64
+          description: ID único del carrito generado automáticamente
+          example: 123
+        usuarioId:
+          type: string
+          maxLength: 255
+          description: |
+            ID único del usuario propietario del carrito.
+            Corresponde al GUID de Azure AD.
+          example: "user-123e4567-e89b-12d3-a456-426614174000"
+        estado:
+          type: string
+          maxLength: 1
+          enum: [A, C, X]
+          description: |
+            Estado del carrito:
+            - A: Activo (en proceso de compra)
+            - C: Completado (checkout procesado)
+            - X: Abandonado (no completado)
+          example: "A"
+        creadoEn:
+          type: string
+          format: date-time
+          description: Fecha y hora de creación del carrito
+          example: "2024-01-15T10:30:00Z"
+        actualizadoEn:
+          type: string
+          format: date-time
+          description: Fecha y hora de última actualización
+          example: "2024-01-15T11:45:00Z"
+      required:
+        - carritoId
+        - estado
+        - creadoEn
+
+    # Esquema para crear/actualizar carritos
+    CarritoRequest:
+      type: object
+      description: Esquema para crear o actualizar un carrito
+      properties:
+        usuarioId:
+          type: string
+          maxLength: 255
+          description: ID único del usuario propietario del carrito
+          example: "user-123e4567-e89b-12d3-a456-426614174000"
+        estado:
+          type: string
+          maxLength: 1
+          enum: [A, C, X]
+          description: Estado del carrito (opcional, por defecto 'A')
+          example: "A"
+
+    # Esquema principal de CarritoItem
+    CarritoItem:
+      type: object
+      description: |
+        Representa un item (producto) dentro de un carrito de compras.
+        Incluye información del producto, cantidad y precio congelado.
+      properties:
+        carritoItemId:
+          type: integer
+          format: int64
+          description: ID único del item del carrito
+          example: 456
+        carritoId:
+          type: integer
+          format: int64
+          description: ID del carrito al que pertenece este item
+          example: 123
+        productoId:
+          type: integer
+          format: int64
+          description: ID del producto agregado al carrito
+          example: 1
+        cantidad:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Cantidad del producto en el carrito
+          example: 2
+        precioUnitario:
+          type: number
+          format: double
+          multipleOf: 0.01
+          description: |
+            Precio unitario del producto al momento de agregarlo al carrito.
+            Este precio se "congela" y no cambia aunque el precio del producto se actualice.
+          example: 899.99
+        agregadoEn:
+          type: string
+          format: date-time
+          description: Fecha y hora cuando se agregó el item al carrito
+          example: "2024-01-15T10:30:00Z"
+        producto:
+          $ref: '#/components/schemas/Producto'
+          description: Información detallada del producto (opcional en algunas respuestas)
+      required:
+        - carritoItemId
+        - carritoId
+        - productoId
+        - cantidad
+        - precioUnitario
+        - agregadoEn
+
+    # Esquema principal de Venta
+    Venta:
+      type: object
+      description: |
+        Representa una venta completada en el sistema. Se genera automáticamente
+        durante el proceso de checkout y contiene la información de la transacción.
+      properties:
+        ventaId:
+          type: integer
+          format: int64
+          description: ID único de la venta generado automáticamente
+          example: 1001
+        carritoId:
+          type: integer
+          format: int64
+          description: |
+            ID del carrito que originó esta venta. Relación uno-a-uno:
+            cada carrito puede generar máximo una venta.
+          example: 123
+        usuarioId:
+          type: string
+          maxLength: 255
+          description: ID único del usuario que realizó la compra
+          example: "user-123e4567-e89b-12d3-a456-426614174000"
+        montoTotal:
+          type: number
+          format: double
+          multipleOf: 0.01
+          description: |
+            Monto total de la venta calculado como la suma de
+            (cantidad × precio_unitario) de todos los items del carrito.
+          example: 1289.97
+        urlRecibo:
+          type: string
+          maxLength: 1024
+          description: |
+            URL del recibo generado en formato PDF. Almacenado en S3 o
+            sistema de archivos externos para descarga del cliente.
+          example: "https://receipts.store.com/receipt-1643723400000.pdf"
+        creadoEn:
+          type: string
+          format: date-time
+          description: Fecha y hora de creación de la venta (momento del checkout)
+          example: "2024-01-15T15:30:00Z"
+        carrito:
+          $ref: '#/components/schemas/Carrito'
+          description: Información del carrito asociado (opcional en algunas respuestas)
+      required:
+        - ventaId
+        - carritoId
+        - montoTotal
+        - urlRecibo
+        - creadoEn
+
+    # Esquema para crear ventas manualmente
+    VentaRequest:
+      type: object
+      description: Esquema para crear una venta manualmente
+      properties:
+        carritoId:
+          type: integer
+          format: int64
+          description: ID del carrito a procesar
+          example: 123
+        usuarioId:
+          type: string
+          maxLength: 255
+          description: ID único del usuario
+          example: "user-123e4567-e89b-12d3-a456-426614174000"
+        montoTotal:
+          type: number
+          format: double
+          multipleOf: 0.01
+          description: Monto total de la venta
+          example: 1289.97
+        urlRecibo:
+          type: string
+          maxLength: 1024
+          description: URL del recibo generado
+          example: "https://receipts.store.com/receipt-custom.pdf"
+      required:
+        - carritoId
+        - montoTotal
+        - urlRecibo
+
+    # Esquema de error estándar
+    Error:
+      type: object
+      description: |
+        Esquema estándar para respuestas de error en la API.
+        Proporciona información detallada sobre errores para facilitar la depuración.
+      properties:
+        error:
+          type: string
+          description: Tipo de error o código de error
+          example: "INVALID_INPUT"
+        message:
+          type: string
+          description: Mensaje descriptivo del error en español
+          example: "El SKU del producto ya existe en el sistema"
+        details:
+          type: string
+          description: Detalles adicionales del error (opcional)
+          example: "SKU 'LAPTOP-001' ya está registrado con el producto ID 1"
+        timestamp:
+          type: string
+          format: date-time
+          description: Fecha y hora del error
+          example: "2024-01-15T10:30:00Z"
+        path:
+          type: string
+          description: Ruta del endpoint que generó el error
+          example: "/api/productos"
+      required:
+        - error
+        - message
+        - timestamp
+
+  # Parámetros reutilizables
+  parameters:
+    ProductoId:
+      name: id
+      in: path
+      required: true
+      description: ID único del producto
+      schema:
+        type: integer
+        format: int64
+        example: 1
+
+    CarritoId:
+      name: carritoId
+      in: path
+      required: true
+      description: ID único del carrito
+      schema:
+        type: integer
+        format: int64
+        example: 123
+
+    UsuarioId:
+      name: usuarioId
+      in: path
+      required: true
+      description: ID único del usuario (GUID de Azure AD)
+      schema:
+        type: string
+        example: "user-123e4567-e89b-12d3-a456-426614174000"
+
+  # Respuestas reutilizables
+  responses:
+    NotFound:
+      description: Recurso no encontrado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    BadRequest:
+      description: Solicitud inválida
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Error interno del servidor
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  # Ejemplos reutilizables
+  examples:
+    ProductoEjemplo:
+      summary: Ejemplo de producto
+      value:
+        productoId: 1
+        sku: "LAPTOP-001"
+        nombre: "Laptop HP Pavilion 15.6\""
+        descripcion: "Laptop HP Pavilion 15.6 pulgadas, procesador Intel Core i5, 8GB RAM DDR4, 256GB SSD, Windows 11"
+        precio: 899.99
+        cantidadStock: 25
+        creadoEn: "2024-01-15T10:30:00Z"
+        actualizadoEn: "2024-01-20T14:20:00Z"
+
+    CarritoEjemplo:
+      summary: Ejemplo de carrito activo
+      value:
+        carritoId: 123
+        usuarioId: "user-123e4567-e89b-12d3-a456-426614174000"
+        estado: "A"
+        creadoEn: "2024-01-15T10:30:00Z"
+        actualizadoEn: "2024-01-15T11:45:00Z"
+
+    VentaEjemplo:
+      summary: Ejemplo de venta completada
+      value:
+        ventaId: 1001
+        carritoId: 123
+        usuarioId: "user-123e4567-e89b-12d3-a456-426614174000"
+        montoTotal: 1289.97
+        urlRecibo: "https://receipts.store.com/receipt-1643723400000.pdf"
+        creadoEn: "2024-01-15T15:30:00Z"
