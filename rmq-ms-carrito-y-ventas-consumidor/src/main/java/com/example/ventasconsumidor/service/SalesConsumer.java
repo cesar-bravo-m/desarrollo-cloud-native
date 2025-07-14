@@ -58,12 +58,12 @@ public class SalesConsumer {
             
             BigDecimal total = BigDecimal.ZERO;
             
-            for (CarritoItem item : items) {
-                total = total.add(item.getPrecioUnitario().multiply(new BigDecimal(item.getCantidad())));
-                
-                // Reducir stock. ESTO SE DEBE HACER EN KAFKA DESPUÉS, pero por ahora se hace aquí.
-                productoService.reduceStock(item.getProductoId(), item.getCantidad());
-            }
+            // Reducir stock. ESTO SE DEBE HACER EN KAFKA DESPUÉS, pero por ahora se hace aquí.
+            // for (CarritoItem item : items) {
+            //     total = total.add(item.getPrecioUnitario().multiply(new BigDecimal(item.getCantidad())));
+            //     
+            //     productoService.reduceStock(item.getProductoId(), item.getCantidad());
+            // }
             
             Venta venta = new Venta();
             venta.setCarritoId(carritoId);
