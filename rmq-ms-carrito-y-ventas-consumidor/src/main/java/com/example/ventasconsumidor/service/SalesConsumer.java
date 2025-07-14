@@ -69,7 +69,9 @@ public class SalesConsumer {
             venta.setCarritoId(carritoId);
             venta.setUsuarioId(usuarioId);
             venta.setMontoTotal(total);
-            venta.setUrlRecibo("https://receipts.store.com/receipt-" + System.currentTimeMillis() + ".pdf");
+            // TODO obtener uriBase desde application.properties
+            var uriBase = "http://localhost:8080";
+            venta.setUrlRecibo(uriBase + "/boleta?carritoId=" + carritoId);
             venta.setCreadoEn(OffsetDateTime.now());
             
             Venta savedVenta = ventaRepository.save(venta);

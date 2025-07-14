@@ -370,9 +370,9 @@ export class CarroComponent implements OnInit {
         console.log('User sales:', sales);
 
         if (sales.length > 0) {
-          // Get the last sale (most recent)
-          const lastSale = sales[sales.length - 1];
-          this.receiptUrl = lastSale.urlRecibo;
+          // Find the sale with carritoId equal to the current cart id
+          const sale = sales.find(sale => sale.carritoId === this.currentCart!.carritoId);
+          this.receiptUrl = sale?.urlRecibo || 'http://localhost:8080/boleta?carritoId=' + this.currentCart!.carritoId;
         }
 
         this.isCheckingOut = false;
