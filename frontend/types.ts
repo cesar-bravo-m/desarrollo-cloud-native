@@ -45,6 +45,33 @@ export interface CarroItemAPI {
   subtotal?: number;
 }
 
+// Checkout related types
+export interface CheckoutResponseAPI {
+  carritoId: string;
+  message: string;
+  usuarioId: string;
+}
+
+export interface CartStatusAPI {
+  status: string;
+}
+
+export interface VentaAPI {
+  ventaId: number;
+  carritoId: number;
+  usuarioId: string;
+  montoTotal: number;
+  urlRecibo: string;
+  creadoEn: string;
+  carrito: {
+    carritoId: number;
+    usuarioId: string;
+    estado: string;
+    creadoEn: string;
+    actualizadoEn: string;
+  };
+}
+
 // Carrito entity
 export interface Carrito {
   carritoId: number;

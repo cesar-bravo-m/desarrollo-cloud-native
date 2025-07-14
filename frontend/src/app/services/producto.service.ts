@@ -2,8 +2,8 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { MsalService } from '@azure/msal-angular';
-import { switchMap, catchError } from 'rxjs/operators';
-import { ProductoAPI, CarroAPI, CarroCreateAPI, CarroResponseAPI, CarroItemAPI } from '../../../types';
+import { switchMap, catchError, map } from 'rxjs/operators';
+import { ProductoAPI, CarroAPI, CarroCreateAPI, CarroResponseAPI, CarroItemAPI, CheckoutResponseAPI, CartStatusAPI, VentaAPI } from '../../../types';
 
 @Injectable({
   providedIn: 'root'
@@ -146,6 +146,16 @@ export class ProductoService {
     );
   }
 
+  // Get cart total from server (returns raw integer)
+  getCartTotal(carroId: number): Observable<number> {
+    console.log(`Obteniendo total del carro ${carroId}`);
+    const uri = `${this.url}/carritos/${carroId}/total`;
+    return this.getHeaders().pipe(
+      switchMap(headers => this.http.get(uri, { headers, responseType: 'text' })),
+      map((response: string) => parseInt(response, 10))
+    );
+  }
+
   // Remove item from cart
   removeItemFromCart(carroId: number, productoId: number): Observable<void> {
     console.log(`Eliminando item del carro ${carroId}: producto ${productoId}`);
@@ -177,5 +187,32 @@ export class ProductoService {
 
   getHtmlContent(url: string): Observable<string> {
     return this.http.get(url, { responseType: 'text' });
+  }
+
+  // Checkout cart
+  checkout(carritoId: number, usuarioId: string): Observable<CheckoutResponseAPI> {
+    console.log(`Procesando checkout para carro ${carritoId} usuario ${usuarioId}`);
+    const uri = `${this.url}/ventas/checkout?carritoId=${carritoId}&usuarioId=${usuarioId}`;
+    return this.getHeaders().pipe(
+      switchMap(headers => this.http.post<CheckoutResponseAPI>(uri, {}, { headers }))
+    );
+  }
+
+  // Get cart status
+  getCartStatus(carritoId: number): Observable<CartStatusAPI> {
+    console.log(`Obteniendo estado del carro ${carritoId}`);
+    const uri = `${this.url}/ventas/carrito/${carritoId}/status`;
+    return this.getHeaders().pipe(
+      switchMap(headers => this.http.get<CartStatusAPI>(uri, { headers }))
+    );
+  }
+
+  // Get user sales history
+  getUserSales(usuarioId: string): Observable<VentaAPI[]> {
+    console.log(`Obteniendo historial de ventas para usuario ${usuarioId}`);
+    const uri = `${this.url}/ventas/usuario/${usuarioId}`;
+    return this.getHeaders().pipe(
+      switchMap(headers => this.http.get<VentaAPI[]>(uri, { headers }))
+    );
   }
 }

@@ -2,63 +2,304 @@
 
         <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container px-4 px-lg-5">
-                <a class="navbar-brand" href="#!">Tienda</a>
+                <a class="navbar-brand" href="#!">Tienda - Carro de Compras</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="./">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link" href="./">Inicio</a></li>
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Carro</a></li>
                     </ul>
 
-                    <form *ngIf="usuarioId || !usuarioId" class="d-flex">
-                        <button class="btn btn-outline-dark" type="button" (click)="goHome()">
-                            <i class="bi-cart-fill me-1"></i>
-                            Volver
+                    <div class="d-flex">
+                        <button class="btn btn-outline-primary me-2" type="button" (click)="goHome()">
+                            <i class="fas fa-arrow-left me-1"></i>
+                            Volver a la tienda
                         </button>
-                        <button class="btn btn-outline-dark" type="button" (click)="goPrint()">
-                            <i class="bi-cart-fill me-1"></i>
-                            Imprimir ticket
-                            <span class="badge bg-dark text-white ms-1 rounded-pill">{{ carro_items }}</span>
-                            ${{ carro_total | number: '1.0-2' }}
-                        </button>
-                    </form>
+                        <div *ngIf="userEmail" class="d-flex align-items-center">
+                            <span class="fw-bold text-primary">{{ userEmail }}</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
 
-        <header class="bg-dark py-5">
-            <div class="container px-4 px-lg-5 my-5">
+        <header class="bg-primary py-4">
+            <div class="container px-4 px-lg-5">
                 <div class="text-center text-white">
-                    <h1 class="display-4 fw-bolder">Nuestra tienda para ti!</h1>
-                    <p class="lead fw-normal text-white-50 mb-0">Selecciona todos los productos que necesites.</p>
+                    <h1 class="display-5 fw-bolder">
+                        <i class="fas fa-shopping-cart me-2"></i>
+                        Tu Carro de Compras
+                    </h1>
+                    <p class="lead fw-normal text-white-75 mb-0" *ngIf="!isLoading && !isCartEmpty()">
+                        {{ getTotalItems() }} artículo{{ getTotalItems() !== 1 ? 's' : '' }} en tu carro
+                    </p>
+                    <p class="lead fw-normal text-white-75 mb-0" *ngIf="!isLoading && isCartEmpty()">
+                        Tu carro está vacío
+                    </p>
                 </div>
             </div>
         </header>
 
         <section class="py-5">
-            <div class="container px-4 px-lg-5 mt-5">
-                <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            <div class="container px-4 px-lg-5">
 
+                <!-- Loading state -->
+                <div *ngIf="isLoading" class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando carro...</span>
+                    </div>
+                    <p class="mt-2">Cargando tu carro de compras...</p>
+                </div>
 
-                    <div *ngFor="let item of carro | keyvalue" class="col mb-5">
-                        <div class="card h-100">
-                            <img class="card-img-top" [src]="productos[item.value['productoId']]['imagenUri']" alt="..." />
+                <!-- Empty cart state -->
+                <div *ngIf="!isLoading && isCartEmpty()" class="text-center py-5">
+                    <i class="fas fa-shopping-cart display-1 text-muted mb-4"></i>
+                    <h3 class="text-muted">Tu carro está vacío</h3>
+                    <p class="text-muted mb-4">¡Agrega algunos productos para comenzar!</p>
+                    <button class="btn btn-primary btn-lg" (click)="goHome()">
+                        <i class="fas fa-store me-2"></i>
+                        Ir a la tienda
+                    </button>
+                </div>
 
-                            <div class="card-body p-4">
-                                <div class="text-center">
-                                    <h5 class="fw-bolder">{{ productos[item.value["productoId"]]["nombre"] }}</h5>
-                                    <i>{{ productos[item.value["productoId"]]["descripcion"] }}</i>
-                                    ${{ productos[item.value["productoId"]]["precio"] | number: '1.0-2' }}
-                                </div>
+                <!-- Cart items -->
+                <div *ngIf="!isLoading && !isCartEmpty() && !checkoutCompleted" class="row">
+
+                    <!-- Cart items list -->
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-list me-2"></i>
+                                    Productos en tu carro
+                                </h5>
                             </div>
+                            <div class="card-body p-0">
 
-                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                <div class="text-center">
-                                    <button class="btn btn-outline-dark mt-auto" (click)="quitarCarro(item.value['productoId'])" >Quitar del carro</button>
+                                <div *ngFor="let item of cartItems; let last = last" class="border-bottom" [class.border-bottom-0]="last">
+                                    <div class="row g-1 p-4">
+
+                                        <!-- Product image -->
+                                        <div class="col-md-3" style="margin-right: 0px;">
+                                            <img
+                                                [src]="getProductImage(item.productoId)"
+                                                [alt]="productos[item.productoId]?.nombre"
+                                                class="img-fluid rounded"
+                                                style="height: 150px; width: 100%; object-fit: cover;"
+                                                (error)="onImageError($event, item.productoId)" />
+                                        </div>
+
+                                        <!-- Product details -->
+                                        <div class="col-md-6">
+                                            <div class="h-100 d-flex flex-column">
+                                                <h5 class="fw-bold mb-2">{{ productos[item.productoId]?.nombre }}</h5>
+                                                <p class="text-muted mb-2" *ngIf="productos[item.productoId]?.descripcion">
+                                                    {{ productos[item.productoId]?.descripcion }}
+                                                </p>
+                                                <div class="mt-auto">
+                                                    <span class="h5 text-primary fw-bold">
+                                                        {{ formatPrice(productos[item.productoId]?.precio || 0) }}
+                                                    </span>
+                                                    <small class="text-muted ms-2">por unidad</small>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Quantity controls and subtotal -->
+                                        <div class="col-md-3">
+                                            <div class="h-100 d-flex flex-column align-items-center justify-content-center">
+
+                                                <!-- Quantity controls -->
+                                                <div class="d-flex align-items-center mb-3">
+
+                                                    <!-- Decrease/Remove button -->
+                                                    <button
+                                                        class="btn btn-outline-danger btn-sm me-2"
+                                                        (click)="decreaseQuantity(item.productoId)"
+                                                        [disabled]="isUpdating"
+                                                        [title]="getProductQuantity(item.productoId) === 1 ? 'Eliminar del carro' : 'Reducir cantidad'">
+                                                        <span *ngIf="isUpdating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                        <i *ngIf="!isUpdating && getProductQuantity(item.productoId) === 1" class="fas fa-trash"></i>
+                                                        <i *ngIf="!isUpdating && getProductQuantity(item.productoId) > 1" class="fas fa-minus"></i>
+                                                    </button>
+
+                                                    <!-- Quantity display -->
+                                                    <span class="fw-bold text-primary mx-2 fs-5">
+                                                        {{ getProductQuantity(item.productoId) }}
+                                                    </span>
+
+                                                    <!-- Increase button -->
+                                                    <button
+                                                        class="btn btn-outline-success btn-sm ms-2"
+                                                        (click)="increaseQuantity(item.productoId)"
+                                                        [disabled]="isUpdating"
+                                                        title="Aumentar cantidad">
+                                                        <span *ngIf="isUpdating" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                                        <i *ngIf="!isUpdating" class="fas fa-plus"></i>
+                                                    </button>
+                                                </div>
+
+                                                <!-- Subtotal -->
+                                                <div class="text-center">
+                                                    <small class="text-muted d-block">Subtotal</small>
+                                                    <span class="fw-bold text-success">
+                                                        {{ formatPrice((productos[item.productoId]?.precio || 0) * item.cantidad) }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Cart summary -->
+                    <div class="col-lg-4">
+                        <div class="card shadow-sm sticky-top" style="top: 20px;">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-calculator me-2"></i>
+                                    Resumen del pedido
+                                </h5>
+                            </div>
+                            <div class="card-body">
+
+                                <!-- Loading state for totals -->
+                                <div *ngIf="isFetchingTotal" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Calculando total...</span>
+                                    </div>
+                                    <p class="mt-2 text-muted">Calculando total...</p>
+                                </div>
+
+                                <!-- Total details -->
+                                <div *ngIf="!isFetchingTotal && cartTotal">
+                                    <!-- Items summary -->
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Productos ({{ getTotalItems() }})</span>
+                                        <span>{{ formatPrice(getCartSubtotal()) }}</span>
+                                    </div>
+
+                                    <!-- Taxes if any -->
+                                    <div *ngIf="getCartTaxes() > 0" class="d-flex justify-content-between mb-2">
+                                        <span>Impuestos</span>
+                                        <span>{{ formatPrice(getCartTaxes()) }}</span>
+                                    </div>
+
+                                    <!-- Discount if any -->
+                                    <div *ngIf="getCartDiscount() > 0" class="d-flex justify-content-between mb-2 text-success">
+                                        <span>
+                                            <i class="fas fa-tag me-1"></i>
+                                            Descuento
+                                        </span>
+                                        <span>-{{ formatPrice(getCartDiscount()) }}</span>
+                                    </div>
+
+                                    <hr>
+
+                                    <!-- Total -->
+                                    <div class="d-flex justify-content-between mb-4">
+                                        <h5 class="fw-bold">Total</h5>
+                                        <h5 class="fw-bold text-success">{{ formatPrice(getCartTotalAmount()) }}</h5>
+                                    </div>
+
+                                    <!-- Action buttons -->
+                                    <div class="d-grid gap-2">
+                                        <!-- Normal checkout button -->
+                                        <button
+                                            *ngIf="!isCheckingOut && !checkoutCompleted"
+                                            class="btn btn-success btn-lg"
+                                            (click)="checkout()"
+                                            [disabled]="isUpdating || isFetchingTotal">
+                                            <i class="fas fa-credit-card me-2"></i>
+                                            Proceder al pago
+                                        </button>
+
+                                        <!-- Checkout loading state -->
+                                        <button
+                                            *ngIf="isCheckingOut"
+                                            class="btn btn-success btn-lg"
+                                            disabled>
+                                            <div class="spinner-border spinner-border-sm me-2" role="status">
+                                                <span class="visually-hidden">Procesando...</span>
+                                            </div>
+                                            Procesando pago...
+                                        </button>
+
+                                        <!-- Continue shopping button (always visible if not checked out) -->
+                                        <button
+                                            *ngIf="!checkoutCompleted"
+                                            class="btn btn-outline-primary"
+                                            (click)="goHome()"
+                                            [disabled]="isCheckingOut">
+                                            <i class="fas fa-plus me-2"></i>
+                                            Agregar más productos
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Fallback when no total data -->
+                                <div *ngIf="!isFetchingTotal && !cartTotal" class="text-center py-4">
+                                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                                    <p class="text-muted mt-2">No se pudo calcular el total</p>
+                                    <button class="btn btn-outline-secondary btn-sm" (click)="loadCart()">
+                                        <i class="fas fa-redo me-1"></i>
+                                        Reintentar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Checkout success section -->
+        <section *ngIf="checkoutCompleted" class="py-5">
+            <div class="container px-4 px-lg-5 mt-5">
+                <div class="row justify-content-center">
+                    <div class="col-lg-8">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-success text-white text-center">
+                                <h3 class="mb-0">
+                                    <i class="fas fa-check-circle me-2"></i>
+                                    ¡Pago exitoso!
+                                </h3>
+                            </div>
+                            <div class="card-body text-center py-5">
+                                <div class="mb-4">
+                                    <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+                                </div>
+                                <h4 class="text-success mb-3">¡Gracias por tu compra!</h4>
+                                <p class="text-muted mb-4">
+                                    Tu pedido ha sido procesado exitosamente. Recibirás una confirmación por email en breve.
+                                </p>
+
+                                <!-- Receipt section -->
+                                <div *ngIf="receiptUrl" class="mb-4">
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-receipt me-2"></i>
+                                        <strong>Recibo disponible:</strong>
+                                        <div class="mt-2">
+                                            <a [href]="receiptUrl" target="_blank" class="btn btn-primary">
+                                                <i class="fas fa-download me-2"></i>
+                                                Descargar recibo
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Action buttons -->
+                                <div class="d-grid gap-2 col-md-6 mx-auto">
+                                    <button class="btn btn-success btn-lg" (click)="continueShopping()">
+                                        <i class="fas fa-shopping-cart me-2"></i>
+                                        Continuar comprando
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -69,37 +310,5 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
 
-        <script src="js/scripts.js"></script>
-
     </body>
-
-    <script>
-        $(document).ready(
-            function () {
-                alert("ready");
-            }
-        );
-    </script>
-
-
-    <div class="container" id="ticketContenido" style="margin-left: 30px; height: 0px;">
-        <h3>Cobro</h3>
-        <br>
-        <small>(El correlativo se generar&aacute; al momento de emitir la impresi&oacute;n)</small>
-        <H1>Boleta #{{ ticket_numero }}</H1>
-        <br>
-        <H1>Cliente: {{ usuario_alias }}</H1>
-        <hr>
-        <div *ngFor="let item of carro | keyvalue" class="col mb-5">
-
-            <div class="text-center">
-                <h5 class="fw-bolder">{{ productos[item.value["productoId"]]["nombre"] }}</h5>
-                <i>{{ productos[item.value["productoId"]]["descripcion"] }}</i>
-                ${{ productos[item.value["productoId"]]["precio"] | number: '1.0-2' }}
-            </div>
-
-        </div>
-        <h3>Total ${{carro_total | number: '1.0-2'}}</h3>
-        <hr>
-    </div>
 
