@@ -20,4 +20,11 @@ public class WebClientConfig {
                 .baseUrl("http://localhost:8084") // Microservicio de Carrito y Ventas
                 .build();
     }
+    
+    @Bean("notificationWebClient")
+    public WebClient notificationWebClient() {
+        return WebClient.builder()
+                .baseUrl("http://localhost:8088") // Servicio de Notificaciones
+                .build();
+    }
 } 

@@ -18,9 +18,41 @@ import reactor.core.publisher.Mono;
 public class VentasController {
     
     private final WebClient ventasWebClient;
+    private final WebClient notificationWebClient;
     
-    public VentasController(@Qualifier("ventasWebClient") WebClient ventasWebClient) {
+    public VentasController(@Qualifier("ventasWebClient") WebClient ventasWebClient,
+                           @Qualifier("notificationWebClient") WebClient notificationWebClient) {
         this.ventasWebClient = ventasWebClient;
+        this.notificationWebClient = notificationWebClient;
+    }
+
+    // DTO class for notification message
+    public static class NotificationMessage {
+        private Long carritoId;
+        private String userId;
+        
+        public NotificationMessage() {}
+        
+        public NotificationMessage(Long carritoId, String userId) {
+            this.carritoId = carritoId;
+            this.userId = userId;
+        }
+        
+        public Long getCarritoId() {
+            return carritoId;
+        }
+        
+        public void setCarritoId(Long carritoId) {
+            this.carritoId = carritoId;
+        }
+        
+        public String getUserId() {
+            return userId;
+        }
+        
+        public void setUserId(String userId) {
+            this.userId = userId;
+        }
     }
     
     @GetMapping("carritos")
@@ -181,15 +213,26 @@ public class VentasController {
                         .queryParam("usuarioId", usuarioId)
                         .build())
                 .exchange()
-                .flatMap(response -> response.toEntity(Object.class));
+                .flatMap(response -> response.toEntity(Object.class))
+                .doOnNext(entity -> {
+                    // llamar adminventas para informar la venta e insertar el mensaje a kafka
+                    NotificationMessage notificationMessage = new NotificationMessage(carritoId, usuarioId);
+                    notificationWebClient.post()
+                            .uri("/api/ventas/informarVenta")
+                            .bodyValue(notificationMessage)
+                            .retrieve()
+                            .toEntity(Object.class)
+                            .subscribe();
+                });
     }
 
     @GetMapping("ventas/carrito/{carritoId}/status")
     public Mono<ResponseEntity<Object>> getVentaStatus(@PathVariable Long carritoId) {
-        return ventasWebClient.get()
+        Mono<ResponseEntity<Object>> resultado =  ventasWebClient.get()
                 .uri("/api/ventas/carrito/{carritoId}/status", carritoId)
                 .retrieve()
                 .toEntity(Object.class);
+        return resultado;
     }
     
     @GetMapping("/health")
