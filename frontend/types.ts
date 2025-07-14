@@ -6,10 +6,10 @@ export interface ProductoAPI {
   productoId: number;
   nombre: string;
   descripcion?: string;
-  stockActual: number;
+  cantidadStock: number;
   registroFecha: string;
   valorCosto: number;
-  valorVenta: number;
+  precio: number;
   imagenUri?: string;
 }
 
@@ -24,8 +24,25 @@ export interface CarroAPI {
 
 export interface CarroCreateAPI {
   usuarioId: string;
+  estado: string;
+  creadoEn: string;
+  actualizadoEn?: string | null;
+}
+
+export interface CarroResponseAPI {
+  carritoId: number;
+  usuarioId: string;
+  estado: string;
+  creadoEn: string;
+  actualizadoEn?: string | null;
+}
+
+export interface CarroItemAPI {
+  carroId: number;
   productoId: number;
   cantidad: number;
+  producto?: ProductoAPI;
+  subtotal?: number;
 }
 
 // Carrito entity

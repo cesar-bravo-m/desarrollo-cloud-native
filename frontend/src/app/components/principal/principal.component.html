@@ -11,7 +11,7 @@
 
                     <form *ngIf="usuarioId || !usuarioId" class="d-flex">
                         <button class="btn btn-outline-dark" type="button" (click)="goCarro()">
-                            <i class="bi-cart-fill me-1"></i>
+                            <i class="fas fa-shopping-cart me-1"></i>
                             Carro
                             <span class="badge bg-dark text-white ms-1 rounded-pill">{{ carro_items }}</span>
                         </button>
@@ -20,12 +20,12 @@
                         <span *ngIf="userEmail" class="me-3 fw-bold">{{ userEmail }}</span>
 
                         <button *ngIf="!userEmail" type="button" class="btn btn-outline-dark" (click)="login()">
-                            <i class="bi-person-fill me-1"></i>
+                            <i class="fas fa-user me-1"></i>
                             Login
                         </button>
 
                         <button *ngIf="userEmail" type="button" class="btn btn-outline-dark" (click)="logout()">
-                            <i class="bi-box-arrow-right me-1"></i>
+                            <i class="fas fa-sign-out-alt me-1"></i>
                             Logout
                         </button>
                     </div>
@@ -59,7 +59,7 @@
                         <div class="card h-100 shadow-sm">
                             <!-- Product image -->
                             <div class="position-relative">
-                                                                <img
+                                <img
                                     class="card-img-top"
                                     [src]="getProductImage(producto)"
                                     [alt]="producto.nombre"
@@ -90,30 +90,79 @@
                                     <!-- Product price -->
                                     <div class="mb-2">
                                         <span class="h4 text-primary fw-bold">
-                                            ${{ formatPrice(producto.valorVenta) }}
+                                            {{ formatPrice(producto.precio) }}
                                         </span>
                                     </div>
 
                                     <!-- Stock quantity -->
                                     <small class="text-muted">
-                                        {{ producto.stockActual }} disponibles
+                                        {{ producto.cantidadStock }} disponibles
                                     </small>
+
+                                    <!-- Cart quantity indicator -->
+                                    <!-- <div *ngIf="isProductInCart(producto.productoId)" class="mt-2">
+                                        <small class="text-success fw-bold">
+                                            <i class="fas fa-check-circle me-1"></i>
+                                            {{ getProductQuantityInCart(producto.productoId) }} en el carro
+                                        </small>
+                                    </div> -->
                                 </div>
                             </div>
 
                             <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
                                 <div class="text-center">
+
+                                    <!-- Quantity controls for products already in cart -->
+                                    <div *ngIf="isProductInCart(producto.productoId) && userEmail && isProductInStock(producto)" class="d-flex align-items-center justify-content-center">
+
+                                        <!-- Decrease/Remove button -->
+                                        <button
+                                            class="btn btn-outline-danger btn-sm me-2"
+                                            (click)="decreaseQuantity(producto.productoId)"
+                                            [disabled]="isAddingToCart"
+                                            [title]="getProductQuantityInCart(producto.productoId) === 1 ? 'Eliminar del carro' : 'Reducir cantidad'">
+                                            <span *ngIf="isAddingToCart" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            <i *ngIf="!isAddingToCart && getProductQuantityInCart(producto.productoId) === 1" class="fas fa-trash"></i>
+                                            <i *ngIf="!isAddingToCart && getProductQuantityInCart(producto.productoId) > 1" class="fas fa-minus"></i>
+                                        </button>
+
+                                        <!-- Quantity display -->
+                                        <span class="fw-bold text-primary mx-2">
+                                            {{ getProductQuantityInCart(producto.productoId) }}
+                                        </span>
+
+                                        <!-- Increase button -->
+                                        <button
+                                            class="btn btn-outline-success btn-sm ms-2"
+                                            (click)="increaseQuantity(producto.productoId)"
+                                            [disabled]="isAddingToCart"
+                                            title="Aumentar cantidad">
+                                            <span *ngIf="isAddingToCart" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                            <i *ngIf="!isAddingToCart" class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Original add to cart button for products not in cart -->
                                     <button
+                                        *ngIf="!isProductInCart(producto.productoId)"
                                         class="btn btn-outline-dark mt-auto"
                                         (click)="agregarCarro(producto.productoId)"
-                                        [disabled]="!userEmail || !isProductInStock(producto)"
+                                        [disabled]="!userEmail || !isProductInStock(producto) || isAddingToCart"
                                         [title]="!userEmail ? 'Debes iniciar sesión para agregar al carro' :
                                                 !isProductInStock(producto) ? 'Producto agotado' :
                                                 'Agregar al carro'">
-                                        <i class="bi-cart-plus me-1"></i>
-                                        {{ !userEmail ? 'Iniciar sesión para comprar' :
-                                           !isProductInStock(producto) ? 'Producto agotado' :
-                                           'Agregar al carro' }}
+
+                                        <!-- Loading spinner -->
+                                        <span *ngIf="isAddingToCart" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+
+                                        <!-- Button icon -->
+                                        <i *ngIf="!isAddingToCart" class="fas fa-cart-plus me-1"></i>
+
+                                        <!-- Button text -->
+                                        <span *ngIf="isAddingToCart">Agregando...</span>
+                                        <span *ngIf="!isAddingToCart && !userEmail">Iniciar sesión para comprar</span>
+                                        <span *ngIf="!isAddingToCart && userEmail && !isProductInStock(producto)">Producto agotado</span>
+                                        <span *ngIf="!isAddingToCart && userEmail && isProductInStock(producto)">Agregar al carro</span>
                                     </button>
                                 </div>
                             </div>
@@ -123,7 +172,7 @@
 
                 <!-- No products message -->
                 <div *ngIf="!isLoading && productos.length === 0" class="text-center py-5">
-                    <i class="bi-exclamation-circle display-1 text-muted"></i>
+                    <i class="fas fa-exclamation-circle display-1 text-muted"></i>
                     <h3 class="text-muted">No hay productos disponibles</h3>
                     <p class="text-muted">Por favor, intenta más tarde.</p>
                 </div>

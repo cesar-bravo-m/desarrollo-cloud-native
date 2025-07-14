@@ -125,7 +125,7 @@ export class CarroComponent {
         let data = [];
         for(const item of this.productos) {
           if (item) {
-            data.push([item["productoId"], item["nombre"], "$ "+item["valorVenta"]]);
+            data.push([item["productoId"], item["nombre"], "$ "+item["precio"]]);
           }
         }
 
@@ -159,7 +159,7 @@ export class CarroComponent {
 
         console.log("[carro / getProducto] - ",p);
         this.productos[p["productoId"]] = p;
-        this.carro_total = this.carro_total + p["valorVenta"];
+        this.carro_total = this.carro_total + p["precio"];
 
       }
     );

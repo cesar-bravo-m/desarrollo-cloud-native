@@ -1010,7 +1010,7 @@ components:
           type: string
           description: Detailed product description
           example: "Latest smartphone with advanced features and high-performance camera"
-        stockActual:
+        cantidadStock:
           type: integer
           format: int64
           description: Current available stock quantity
@@ -1026,7 +1026,7 @@ components:
           format: int64
           description: Product cost price in cents
           example: 12000
-        valorVenta:
+        precio:
           type: integer
           format: int64
           description: Product sale price in cents
@@ -1039,8 +1039,8 @@ components:
       required:
         - productoId
         - nombre
-        - stockActual
-        - valorVenta
+        - cantidadStock
+        - precio
 
     Venta:
       type: object
