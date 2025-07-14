@@ -17,14 +17,17 @@ import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.grupo11.adminpromociones.model.Producto;
 import com.grupo11.adminpromociones.model.Promocion;
 import com.grupo11.adminpromociones.model.StockDto;
+import com.grupo11.adminpromociones.repository.ProductoRepository;
 
 @Service
 public class KafkaService {
@@ -46,8 +49,12 @@ public class KafkaService {
     @Value("${spring.kafka.consumer.group-id}")
     private String groupId;
 
-    public KafkaService(KafkaTemplate<String, String> kafkaTemplate) {
+    @Autowired
+    private ProductoRepository productoRepository;
+
+    public KafkaService(KafkaTemplate<String, String> kafkaTemplate, ProductoRepository productoRepository) {
         this.kafkaTemplate = kafkaTemplate;
+        this.productoRepository = productoRepository;
         this.objectMapper = new ObjectMapper();
     }
 
@@ -91,13 +98,9 @@ public class KafkaService {
         } catch (Exception e) {
             logger.error("Error reading from stock topic: {}", e.getMessage(), e);
         }
-        
-        logger.info("=== FINISHED READING STOCK TOPIC ===");
     }
 
     public Map<String, Object> readVentasAndStockTopicsAndCreatePromocion() {
-        logger.info("=== READING VENTAS AND STOCK TOPICS ===");
-        
         Map<String, Object> result = new HashMap<>();
         List<String> ventasMessages = new ArrayList<>();
         List<StockDto> stockData = new ArrayList<>();
@@ -110,7 +113,7 @@ public class KafkaService {
         props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true");
 
-        // Read ventas topic
+        // Leer el topic de ventas
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
             consumer.subscribe(Collections.singletonList(ventasTopic));
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
@@ -124,7 +127,7 @@ public class KafkaService {
             logger.error("Error reading from ventas topic: {}", e.getMessage());
         }
 
-        // Read stock topic and parse as StockDto
+        // Leer el topic de stock y parsear como StockDto
         try (KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props)) {
             consumer.subscribe(Collections.singletonList(stockTopic));
             ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(5));
@@ -137,7 +140,7 @@ public class KafkaService {
                     logger.info("Stock data: {}", stockDto);
                 } catch (Exception e) {
                     logger.warn("Could not parse stock message as JSON: {}", record.value());
-                    // Try to create StockDto from string if JSON parsing fails
+                    // Intentar crear StockDto desde string si la parseo JSON falla
                     StockDto fallbackStock = parseStockFromString(record.value());
                     if (fallbackStock != null) {
                         stockData.add(fallbackStock);
@@ -152,25 +155,22 @@ public class KafkaService {
         result.put("ventas", ventasMessages);
         result.put("stock", stockData);
         
-        // Create heuristic for least sold item
+        // Crear heuristica para el item menos vendido
         Promocion promocionCreated = createPromocionForLeastSoldItem(ventasMessages, stockData);
         result.put("promocionCreated", promocionCreated);
         
-        logger.info("=== FINISHED READING TOPICS ===");
         return result;
     }
 
     private Promocion createPromocionForLeastSoldItem(List<String> ventasMessages, List<StockDto> stockData) {
-        logger.info("=== CREATING PROMOCION FOR LEAST SOLD ITEM ===");
-        
-        // Simple heuristic: count sales per product ID
+        // Heuristica simple: contar las ventas por ID de producto
         Map<Long, Integer> salesCount = new HashMap<>();
         Map<Long, Integer> stockQuantities = new HashMap<>();
         
-        // Parse ventas messages to count sales per product
+        // Parsear los mensajes de ventas para contar las ventas por ID de producto
         for (String ventaMessage : ventasMessages) {
             try {
-                // Assuming ventas message format contains product ID and quantity
+                // Asumiendo que el formato del mensaje de ventas contiene el ID de producto y la cantidad
                 if (ventaMessage.contains("producto") && ventaMessage.contains("cantidad")) {
                     Long productId = extractProductIdFromMessage(ventaMessage);
                     Integer quantity = extractQuantityFromMessage(ventaMessage);
@@ -185,7 +185,7 @@ public class KafkaService {
             }
         }
         
-        // Use stock data to get available quantities
+        // Usar los datos de stock para obtener las cantidades disponibles
         for (StockDto stock : stockData) {
             if (stock.getProductoId() != null && stock.getCantidad() != null) {
                 stockQuantities.put(stock.getProductoId(), stock.getCantidad());
@@ -193,25 +193,25 @@ public class KafkaService {
             }
         }
         
-        // Find least sold item that has stock
+        // Encontrar el item menos vendido que tiene stock
         Long leastSoldProductId = null;
         int minSales = Integer.MAX_VALUE;
         
         if (salesCount.isEmpty() && !stockQuantities.isEmpty()) {
-            // If no sales data, use the first product with stock
+            // Si no hay datos de ventas, usar el primer producto con stock
             leastSoldProductId = stockQuantities.keySet().iterator().next();
             logger.info("No sales data found, using first product with stock: {}", leastSoldProductId);
         } else if (salesCount.isEmpty()) {
-            // If no sales and no stock data, use default
+            // Si no hay datos de ventas y no hay datos de stock, usar el producto por defecto
             leastSoldProductId = 1L;
             logger.info("No sales or stock data found, using default product ID: {}", leastSoldProductId);
         } else {
-            // Find product with minimum sales that has stock
+            // Encontrar el producto con el mínimo de ventas que tiene stock
             for (Map.Entry<Long, Integer> entry : salesCount.entrySet()) {
                 Long productId = entry.getKey();
                 int sales = entry.getValue();
                 
-                // Prefer products that have stock data, or use any product if no stock data available
+                // Preferir productos que tengan datos de stock, o usar cualquier producto si no hay datos de stock disponibles
                 if ((stockQuantities.containsKey(productId) && stockQuantities.get(productId) > 0) || stockQuantities.isEmpty()) {
                     if (sales < minSales) {
                         minSales = sales;
@@ -223,17 +223,20 @@ public class KafkaService {
             if (leastSoldProductId != null) {
                 logger.info("Least sold product: {} with {} sales", leastSoldProductId, minSales);
             } else {
-                // Fallback if no valid product found
+                // Fallback si no se encuentra un producto valido
                 leastSoldProductId = salesCount.keySet().iterator().next();
                 logger.info("Using fallback product: {}", leastSoldProductId);
             }
         }
         
-        // Create promocion with 10% discount (using default price since we don't have price in stock)
-        BigDecimal defaultPrice = new BigDecimal("100.00");
-        BigDecimal discountedPrice = defaultPrice.multiply(new BigDecimal("0.90")); // 10% discount
+        // Crear promocion con 10% de descuento
+        // Primero obtenemos el producto para leer su valor actual
+        Producto producto = productoRepository.findById(leastSoldProductId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+        BigDecimal defaultPrice = producto.getPrecio();
+        BigDecimal discountedPrice = defaultPrice.multiply(new BigDecimal("0.90")); // descuento del 10%
         
-        // Create promocion
+        // Crear promocion
         Promocion promocion = new Promocion();
         promocion.setProductoId(leastSoldProductId);
         promocion.setCantidad(1); // Minimum quantity for promotion
