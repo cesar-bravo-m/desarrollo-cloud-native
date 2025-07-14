@@ -251,6 +251,189 @@ services:
     networks:
       - kafka-net
 
+  # Microservices
+  ms-productos:
+    build:
+      context: ./ms-productos
+      dockerfile: Dockerfile
+    container_name: ms-productos
+    ports:
+      - "8083:8083"
+    volumes:
+      - ./ms-productos/Wallet_QSYVMD9J8GOANRS4:/app/Wallet_QSYVMD9J8GOANRS4
+    networks:
+      - app-network
+
+  rmq-ms-carrito-y-ventas:
+    build:
+      context: ./rmq-ms-carrito-y-ventas
+      dockerfile: Dockerfile
+    container_name: rmq-ms-carrito-y-ventas
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8084:8084"
+    volumes:
+      - ./rmq-ms-carrito-y-ventas/Wallet_QSYVMD9J8GOANRS4:/app/Wallet_QSYVMD9J8GOANRS4
+    networks:
+      - app-network
+      - promociones-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8084/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  rmq-ms-carrito-y-ventas-consumidor:
+    build:
+      context: ./rmq-ms-carrito-y-ventas-consumidor
+      dockerfile: Dockerfile
+    container_name: rmq-ms-carrito-y-ventas-consumidor
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./rmq-ms-carrito-y-ventas-consumidor/Wallet_QSYVMD9J8GOANRS4:/app/Wallet_QSYVMD9J8GOANRS4
+    networks:
+      - app-network
+      - promociones-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  rmq-ms-promociones:
+    build:
+      context: ./rmq-ms-promociones
+      dockerfile: Dockerfile
+    container_name: rmq-ms-promociones
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8085:8085"
+    networks:
+      - app-network
+      - promociones-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8085/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  rmq-ms-promociones-consumidor:
+    build:
+      context: ./rmq-ms-promociones-consumidor
+      dockerfile: Dockerfile
+    container_name: rmq-ms-promociones-consumidor
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8089:8089"
+    networks:
+      - app-network
+      - promociones-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8089/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  adminpromociones:
+    build:
+      context: ./adminpromociones
+      dockerfile: Dockerfile
+    container_name: adminpromociones
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+    ports:
+      - "8087:8087"
+    volumes:
+      - ./adminpromociones/Wallet_QSYVMD9J8GOANRS4:/app/Wallet_QSYVMD9J8GOANRS4
+    networks:
+      - app-network
+      - kafka-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8087/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  adminstock:
+    build:
+      context: ./adminstock
+      dockerfile: Dockerfile
+    container_name: adminstock
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+    ports:
+      - "8090:8090"
+    volumes:
+      - ./adminstock/Wallet_QSYVMD9J8GOANRS4:/app/Wallet_QSYVMD9J8GOANRS4
+    networks:
+      - app-network
+      - kafka-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8090/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  adminventas:
+    build:
+      context: ./adminventas
+      dockerfile: Dockerfile
+    container_name: adminventas
+    depends_on:
+      kafka1:
+        condition: service_healthy
+      kafka2:
+        condition: service_healthy
+      kafka3:
+        condition: service_healthy
+    ports:
+      - "8088:8088"
+    networks:
+      - app-network
+      - kafka-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8088/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  bff:
+    build:
+      context: ./bff
+      dockerfile: Dockerfile
+    container_name: bff
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
 volumes:
   zookeeper1-data:
   zookeeper1-log:
@@ -267,4 +450,6 @@ networks:
   kafka-net:
     driver: bridge
   promociones-network:
+    driver: bridge
+  app-network:
     driver: bridge 

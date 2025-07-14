@@ -21,16 +21,15 @@ public class SecurityConfig {
         http
             .cors(Customizer.withDefaults())
             .csrf(csrf -> csrf.disable())
-            // Temporarily disabled for development purposes
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()
-            );
             // .authorizeHttpRequests(auth -> auth
-            //     .anyRequest().authenticated()
-            // )
-            // .oauth2ResourceServer(oauth2 -> oauth2
-            //     .jwt(Customizer.withDefaults())
+            //     .anyRequest().permitAll()
             // );
+            .authorizeHttpRequests(auth -> auth
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth2 -> oauth2
+                .jwt(Customizer.withDefaults())
+            );
         return http.build();
     }
 
