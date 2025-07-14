@@ -364,13 +364,11 @@ export class CarroComponent implements OnInit {
       return;
     }
 
-    // Fetch user sales to get the receipt URL
     this.productoService.getUserSales(this.userEmail).subscribe(
       (sales: VentaAPI[]) => {
         console.log('User sales:', sales);
 
         if (sales.length > 0) {
-          // Find the sale with carritoId equal to the current cart id
           const sale = sales.find(sale => sale.carritoId === this.currentCart!.carritoId);
           this.receiptUrl = sale?.urlRecibo || 'http://localhost:8080/boleta?carritoId=' + this.currentCart!.carritoId;
         }
@@ -378,7 +376,6 @@ export class CarroComponent implements OnInit {
         this.isCheckingOut = false;
         this.checkoutCompleted = true;
 
-        // Clear the active cart from localStorage
         localStorage.removeItem('activeCartId');
 
         console.log('Checkout completed successfully!');
@@ -386,8 +383,7 @@ export class CarroComponent implements OnInit {
       error => {
         console.error('Error fetching sales history:', error);
         this.isCheckingOut = false;
-        this.checkoutCompleted = true; // Still show success even if receipt fetch fails
-        // Clear the active cart from localStorage
+        this.checkoutCompleted = true;
         localStorage.removeItem('activeCartId');
       }
     );

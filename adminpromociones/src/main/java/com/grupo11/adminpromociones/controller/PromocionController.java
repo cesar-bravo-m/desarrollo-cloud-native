@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,6 +25,9 @@ public class PromocionController {
     private final PromocionService promocionService;
     private final KafkaService kafkaService;
     private final RestTemplate restTemplate;
+
+    @Value("${app.services.promociones.url}")
+    private String promocionesServiceUrl;
 
     public PromocionController(PromocionService promocionService, KafkaService kafkaService) {
         this.promocionService = promocionService;
@@ -63,20 +67,19 @@ public class PromocionController {
                 result.put("databaseError", e.getMessage());
             }
             
-            // Llamar al servicio ms-promociones (localhost:8085/api/promociones) con la promoción creada
+            // Llamar al servicio ms-promociones con la promoción creada
             try {
-                String externalUrl = "http://localhost:8085/api/promociones";
-                logger.info("Llamando localhost:8085 con promocion: {}", promocionCreated);
+                logger.info("Llamando servicio externo: {}", promocionesServiceUrl);
                 
                 ResponseEntity<Promocion> externalResponse = restTemplate.postForEntity(
-                    externalUrl, 
+                    promocionesServiceUrl, 
                     promocionCreated, 
                     Promocion.class
                 );
                 
-                logger.info("Servicio localhost:8085 retornó estado: {}", externalResponse.getStatusCode());
+                logger.info("Servicio externo retornó estado: {}", externalResponse.getStatusCode());
                 if (externalResponse.getBody() != null) {
-                    logger.info("Servicio localhost:8085 retornó: {}", externalResponse.getBody());
+                    logger.info("Servicio externo retornó: {}", externalResponse.getBody());
                 }
                 
                 // Agregar la respuesta del servicio externo al resultado
@@ -84,7 +87,7 @@ public class PromocionController {
                 result.put("externalServiceStatus", externalResponse.getStatusCode().toString());
                 
             } catch (Exception e) {
-                logger.error("Fallo al llamar localhost:8085: {}", e.getMessage());
+                logger.error("Fallo al llamar servicio externo {}: {}", promocionesServiceUrl, e.getMessage());
                 result.put("externalServiceError", e.getMessage());
             }
         }

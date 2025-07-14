@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.example.ventasconsumidor.config.RabbitMQConfig;
@@ -23,6 +24,9 @@ import com.example.ventasconsumidor.repository.VentaRepository;
 public class SalesConsumer {
     
     private static final Logger logger = LoggerFactory.getLogger(SalesConsumer.class);
+
+    @Value("${app.base-uri}")
+    private String baseUri;
 
     @Autowired
     private CarritoRepository carritoRepository;
@@ -69,9 +73,7 @@ public class SalesConsumer {
             venta.setCarritoId(carritoId);
             venta.setUsuarioId(usuarioId);
             venta.setMontoTotal(total);
-            // TODO obtener uriBase desde application.properties
-            var uriBase = "http://localhost:8080";
-            venta.setUrlRecibo(uriBase + "/boleta?carritoId=" + carritoId);
+            venta.setUrlRecibo(baseUri + "/boleta?carritoId=" + carritoId);
             venta.setCreadoEn(OffsetDateTime.now());
             
             Venta savedVenta = ventaRepository.save(venta);

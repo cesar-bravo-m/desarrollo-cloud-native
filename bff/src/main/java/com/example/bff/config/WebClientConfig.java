@@ -1,5 +1,6 @@
 package com.example.bff.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -7,31 +8,43 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
     
+    @Value("${microservices.productos.base-url}")
+    private String productosBaseUrl;
+    
+    @Value("${microservices.ventas.base-url}")
+    private String ventasBaseUrl;
+    
+    @Value("${microservices.notifications.base-url}")
+    private String notificationsBaseUrl;
+    
+    @Value("${microservices.promociones.base-url}")
+    private String promocionesBaseUrl;
+    
     @Bean("productosWebClient")
     public WebClient productosWebClient() {
         return WebClient.builder()
-                .baseUrl("http://localhost:8083") // Microservicio de Productos
+                .baseUrl(productosBaseUrl) // Microservicio de Productos
                 .build();
     }
     
     @Bean("ventasWebClient")
     public WebClient ventasWebClient() {
         return WebClient.builder()
-                .baseUrl("http://localhost:8084") // Microservicio de Carrito y Ventas
+                .baseUrl(ventasBaseUrl) // Microservicio de Carrito y Ventas
                 .build();
     }
     
     @Bean("notificationWebClient")
     public WebClient notificationWebClient() {
         return WebClient.builder()
-                .baseUrl("http://localhost:8088") // Servicio de Notificaciones
+                .baseUrl(notificationsBaseUrl) // Servicio de Notificaciones
                 .build();
     }
     
     @Bean("promocionesWebClient")
     public WebClient promocionesWebClient() {
         return WebClient.builder()
-                .baseUrl("http://localhost:8087") // Servicio de Promociones
+                .baseUrl(promocionesBaseUrl) // Servicio de Promociones
                 .build();
     }
 } 
