@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 public class Promocion {
     private Long id;
-    private String producto;
+    private Long productoId;
     private Integer cantidad;
     private BigDecimal valor;
     private LocalDate fechaInicio;
@@ -13,9 +13,9 @@ public class Promocion {
 
     public Promocion() {}
 
-    public Promocion(Long id, String producto, Integer cantidad, BigDecimal valor, LocalDate fechaInicio, LocalDate fechaFin) {
+    public Promocion(Long id, Long productoId, Integer cantidad, BigDecimal valor, LocalDate fechaInicio, LocalDate fechaFin) {
         this.id = id;
-        this.producto = producto;
+        this.productoId = productoId;
         this.cantidad = cantidad;
         this.valor = valor;
         this.fechaInicio = fechaInicio;
@@ -30,12 +30,12 @@ public class Promocion {
         this.id = id;
     }
 
-    public String getProducto() {
-        return producto;
+    public Long getProductoId() {
+        return productoId;
     }
 
-    public void setProducto(String producto) {
-        this.producto = producto;
+    public void setProductoId(Long productoId) {
+        this.productoId = productoId;
     }
 
     public Integer getCantidad() {
@@ -74,7 +74,7 @@ public class Promocion {
     public String toString() {
         return "Promocion{" +
                 "id=" + id +
-                ", producto='" + producto + '\'' +
+                ", productoId='" + productoId + '\'' +
                 ", cantidad=" + cantidad +
                 ", valor=" + valor +
                 ", fechaInicio=" + fechaInicio +

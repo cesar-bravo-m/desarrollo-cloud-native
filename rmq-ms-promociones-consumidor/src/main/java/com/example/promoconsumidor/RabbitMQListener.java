@@ -12,24 +12,21 @@ import org.springframework.stereotype.Component;
 @Component
 public class RabbitMQListener {
 
-    private static final String OUTPUT_DIR = "C:\\promociones";
+    private static final String OUTPUT_DIR = ".";
     private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss_SSS");
 
     @RabbitListener(queues = "promociones")
     public void handleMessage(String message) {
         try {
-            // Create output directory if it doesn't exist
             File outputDir = new File(OUTPUT_DIR);
             if (!outputDir.exists()) {
                 outputDir.mkdirs();
             }
 
-            // Generate filename with current timestamp
             String timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
             String filename = timestamp + ".json";
             File outputFile = new File(outputDir, filename);
 
-            // Write message verbatim to file
             try (FileWriter writer = new FileWriter(outputFile)) {
                 writer.write(message);
             }

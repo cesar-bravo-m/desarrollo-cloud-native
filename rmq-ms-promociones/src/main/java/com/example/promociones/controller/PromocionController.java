@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.promociones.config.RabbitMQConfig;
 import com.example.promociones.model.Promocion;
 
+
 @RestController
 @RequestMapping("/api/promociones")
 public class PromocionController {
