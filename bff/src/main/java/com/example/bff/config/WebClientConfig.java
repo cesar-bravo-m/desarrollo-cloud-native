@@ -27,4 +27,11 @@ public class WebClientConfig {
                 .baseUrl("http://localhost:8088") // Servicio de Notificaciones
                 .build();
     }
+    
+    @Bean("promocionesWebClient")
+    public WebClient promocionesWebClient() {
+        return WebClient.builder()
+                .baseUrl("http://localhost:8087") // Servicio de Promociones
+                .build();
+    }
 } 
