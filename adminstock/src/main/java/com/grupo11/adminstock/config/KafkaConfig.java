@@ -1,4 +1,4 @@
-package com.grupo11.adminpromociones.config;
+package com.grupo11.adminstock.config;
 
 import java.util.HashMap;
 import java.util.Map;

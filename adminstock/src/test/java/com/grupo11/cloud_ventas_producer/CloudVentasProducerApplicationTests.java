@@ -1,10 +1,10 @@
-package com.example.adminstock;
+package com.grupo11.cloud_ventas_producer;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class AdminstockApplicationTests {
+class CloudVentasProducerApplicationTests {
 
 	@Test
 	void contextLoads() {

@@ -1,14 +1,13 @@
 package com.grupo11.adminpromociones.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
@@ -39,29 +38,59 @@ public class PromocionController {
     }
 
     @PostMapping
-    public ResponseEntity<Promocion> createPromocion(@RequestBody Promocion promocion) {
-        Promocion savedPromocion = promocionService.savePromocion(promocion);
-
-        kafkaService.manuallyReadStockTopic();
+    public ResponseEntity<Map<String, Object>> createPromocion() {
+        logger.info("=== CREAR PROMOCIONES ENDPOINT CALLED ===");
         
-        try {
-            String externalUrl = "http://localhost:8085/api/promociones";
-            logger.info("Llamando: {}", externalUrl);
-            
-            ResponseEntity<Promocion> externalResponse = restTemplate.postForEntity(
-                externalUrl, 
-                promocion, 
-                Promocion.class
-            );
-            
-            logger.info("Servicio retornó estado: {}", externalResponse.getStatusCode());
-            if (externalResponse.getBody() != null) {
-                logger.info("Servicio localhost:8085 retornó: {}", externalResponse.getBody());
+        // Leer los topics de ventas y stock y crear una promocion
+        Map<String, Object> result = kafkaService.readVentasAndStockTopicsAndCreatePromocion();
+        
+        // Obtener la promocion creada
+        Promocion promocionCreated = (Promocion) result.get("promocionCreated");
+        
+        if (promocionCreated != null) {
+            // Guardar la promocion en la base de datos local
+            try {
+                Promocion savedPromocion = promocionService.savePromocion(promocionCreated);
+                logger.info("Promocion saved to database with ID: {}", savedPromocion.getId());
+                
+                // Actualizar el resultado con la promocion guardada (ahora tiene ID)
+                result.put("promocionCreated", savedPromocion);
+                result.put("savedToDatabase", true);
+                
+            } catch (Exception e) {
+                logger.error("Error saving promocion to database: {}", e.getMessage());
+                result.put("savedToDatabase", false);
+                result.put("databaseError", e.getMessage());
             }
-        } catch (Exception e) {
-            logger.error("Fallo al llamar localhost:8085: {}", e.getMessage());
+            
+            // Llamar al servicio ms-promociones (localhost:8085/api/promociones) con la promoción creada
+            try {
+                String externalUrl = "http://localhost:8085/api/promociones";
+                logger.info("Llamando localhost:8085 con promocion: {}", promocionCreated);
+                
+                ResponseEntity<Promocion> externalResponse = restTemplate.postForEntity(
+                    externalUrl, 
+                    promocionCreated, 
+                    Promocion.class
+                );
+                
+                logger.info("Servicio localhost:8085 retornó estado: {}", externalResponse.getStatusCode());
+                if (externalResponse.getBody() != null) {
+                    logger.info("Servicio localhost:8085 retornó: {}", externalResponse.getBody());
+                }
+                
+                // Agregar la respuesta del servicio externo al resultado
+                result.put("externalServiceResponse", externalResponse.getBody());
+                result.put("externalServiceStatus", externalResponse.getStatusCode().toString());
+                
+            } catch (Exception e) {
+                logger.error("Fallo al llamar localhost:8085: {}", e.getMessage());
+                result.put("externalServiceError", e.getMessage());
+            }
         }
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedPromocion);
+        
+        logger.info("Returning result: {}", result);
+        
+        return ResponseEntity.ok(result);
     }
 } 
