@@ -13,10 +13,16 @@ import org.springframework.context.annotation.Configuration;
 public class RabbitMQConfig {
 
     public static final String PROMOCIONES_QUEUE = "promociones";
+    public static final String SALES_QUEUE = "sales_mq";
 
     @Bean
     public Queue promocionesQueue() {
         return QueueBuilder.durable(PROMOCIONES_QUEUE).build();
+    }
+
+    @Bean
+    public Queue salesQueue() {
+        return QueueBuilder.durable(SALES_QUEUE).build();
     }
 
     @Bean
