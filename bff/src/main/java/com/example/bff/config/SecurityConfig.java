@@ -25,6 +25,7 @@ public class SecurityConfig {
             //     .anyRequest().permitAll()
             // );
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/boleta").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
