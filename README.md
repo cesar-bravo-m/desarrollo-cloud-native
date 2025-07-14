@@ -7,7 +7,8 @@ Este proyecto implementa una tienda online completa utilizando una arquitectura 
 
 ## Arquitectura del Sistema
 
-![diagrama](https://github.com/user-attachments/assets/d095db2b-8513-4b8b-a97d-58e1979cf7cd)
+<img width="615" height="277" alt="image" src="https://github.com/user-attachments/assets/4fcc996e-4c22-4ae7-a817-689ed5db4e1a" />
+
 
 ## Componentes del Sistema
 
