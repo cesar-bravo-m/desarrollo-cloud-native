@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, from, of } from 'rxjs';
 import { MsalService } from '@azure/msal-angular';
 import { switchMap, catchError, map } from 'rxjs/operators';
-import { ProductoAPI, CarroAPI, CarroCreateAPI, CarroResponseAPI, CarroItemAPI, CheckoutResponseAPI, CartStatusAPI, VentaAPI } from '../../../types';
+import { ProductoAPI, CarroAPI, CarroCreateAPI, CarroResponseAPI, CarroItemAPI, CheckoutResponseAPI, CartStatusAPI, VentaAPI, PromocionAPI, CreatePromocionResponseAPI } from '../../../types';
 
 @Injectable({
   providedIn: 'root'
@@ -213,6 +213,22 @@ export class ProductoService {
     const uri = `${this.url}/ventas/usuario/${usuarioId}`;
     return this.getHeaders().pipe(
       switchMap(headers => this.http.get<VentaAPI[]>(uri, { headers }))
+    );
+  }
+
+  // Get promotions
+  getPromociones(): Observable<PromocionAPI[]> {
+    console.log("Obteniendo promociones: " + this.url + "/promociones");
+    return this.getHeaders().pipe(
+      switchMap(headers => this.http.get<PromocionAPI[]>(this.url + "/promociones", { headers }))
+    );
+  }
+
+  // Create new promotion
+  createPromocion(): Observable<CreatePromocionResponseAPI> {
+    console.log("Creando nueva promoción: " + this.url + "/promociones");
+    return this.getHeaders().pipe(
+      switchMap(headers => this.http.post<CreatePromocionResponseAPI>(this.url + "/promociones", {}, { headers }))
     );
   }
 }

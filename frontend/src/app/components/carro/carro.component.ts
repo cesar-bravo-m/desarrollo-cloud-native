@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MsalService } from '@azure/msal-angular';
-import { ProductoAPI, CarroResponseAPI, CarroItemAPI, CheckoutResponseAPI, VentaAPI } from '../../../../types';
+import { ProductoAPI, CarroResponseAPI, CarroItemAPI, CheckoutResponseAPI, VentaAPI, PromocionAPI } from '../../../../types';
 
 @Component({
   selector: 'app-carro',
@@ -19,6 +19,7 @@ export class CarroComponent implements OnInit {
   currentCart: CarroResponseAPI | null = null;
   cartItems: CarroItemAPI[] = [];
   cartTotal: number = 0;
+  promociones: PromocionAPI[] = [];
   productos: { [key: number]: ProductoAPI } = {};
   isLoading: boolean = false;
   isUpdating: boolean = false;
@@ -46,6 +47,7 @@ export class CarroComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadCart();
+    this.loadPromociones();
   }
 
   loadCart(): void {
@@ -130,6 +132,55 @@ export class CarroComponent implements OnInit {
       }
       return sum;
     }, 0);
+  }
+
+  loadPromociones(): void {
+    this.productoService.getPromociones().subscribe(
+      (promociones: PromocionAPI[]) => {
+        console.log("Recuperando promociones en carro", promociones);
+        this.promociones = promociones;
+      },
+      error => {
+        console.log("Error al cargar promociones en carro:", error);
+        // Don't stop the app if promotions fail to load
+        this.promociones = [];
+      }
+    );
+  }
+
+  // Check if a product has an active promotion
+  hasActivePromotion(productoId: number): boolean {
+    const now = new Date();
+    return this.promociones.some(promo =>
+      promo.productoId === productoId &&
+      new Date(promo.fechaInicio) <= now &&
+      new Date(promo.fechaFin) >= now
+    );
+  }
+
+  // Get active promotion for a product
+  getActivePromotion(productoId: number): PromocionAPI | null {
+    const now = new Date();
+    return this.promociones.find(promo =>
+      promo.productoId === productoId &&
+      new Date(promo.fechaInicio) <= now &&
+      new Date(promo.fechaFin) >= now
+    ) || null;
+  }
+
+  // Get the display price (promotion price if available, otherwise regular price)
+  getDisplayPrice(productoId: number): number {
+    const producto = this.productos[productoId];
+    if (!producto) return 0;
+
+    const promotion = this.getActivePromotion(productoId);
+    return promotion ? promotion.valor : producto.precio;
+  }
+
+  // Get the original price (for displaying crossed out)
+  getOriginalPrice(productoId: number): number {
+    const producto = this.productos[productoId];
+    return producto ? producto.precio : 0;
   }
 
   getProductQuantity(productoId: number): number {
@@ -230,11 +281,11 @@ export class CarroComponent implements OnInit {
   }
 
   getCartSubtotal(): number {
-    // Since API only returns total, calculate subtotal locally
+    // Since API only returns total, calculate subtotal locally using promotional prices
     return this.cartItems.reduce((sum, item) => {
-      const producto = this.productos[item.productoId];
-      if (producto) {
-        return sum + (producto.precio * item.cantidad);
+      const displayPrice = this.getDisplayPrice(item.productoId);
+      if (displayPrice) {
+        return sum + (displayPrice * item.cantidad);
       }
       return sum;
     }, 0);

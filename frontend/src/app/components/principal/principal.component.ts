@@ -9,7 +9,7 @@ import { EventMessage, EventType, AccountInfo, AuthenticationResult } from '@azu
 import { loginRequest } from '../../auth-config';
 
 import { ProductoService } from '../../services/producto.service';
-import { ProductoAPI, CarroAPI, CarroCreateAPI, CarroResponseAPI, CarroItemAPI } from '../../../../types';
+import { ProductoAPI, CarroAPI, CarroCreateAPI, CarroResponseAPI, CarroItemAPI, PromocionAPI, CreatePromocionResponseAPI } from '../../../../types';
 
 @Component({
   selector: 'app-principal',
@@ -21,6 +21,7 @@ import { ProductoAPI, CarroAPI, CarroCreateAPI, CarroResponseAPI, CarroItemAPI }
 export class PrincipalComponent implements OnInit {
 
   productos: ProductoAPI[] = [];
+  promociones: PromocionAPI[] = [];
   carroItems: CarroAPI[] = [];
   currentCart: CarroResponseAPI | null = null;
   cartItems: CarroItemAPI[] = [];
@@ -28,6 +29,7 @@ export class PrincipalComponent implements OnInit {
   carro_items: number = 0;
   isLoading: boolean = false;
   isAddingToCart: boolean = false;
+  isCreatingPromotion: boolean = false;
   userEmail?: string;
 
   constructor(
@@ -36,6 +38,7 @@ export class PrincipalComponent implements OnInit {
     private msalService: MsalService,
   ) {
     this.getProductos();
+    this.getPromociones();
     this.usuarioId = JSON.parse(localStorage.getItem("usuarioId") || "0");
     this.initializeCart();
   }
@@ -195,6 +198,81 @@ export class PrincipalComponent implements OnInit {
         if (error.message && error.message.includes('No authentication token available')) {
           this.login();
         }
+      }
+    );
+  }
+
+  getPromociones(): void {
+    this.productoService.getPromociones().subscribe(
+      (promociones: PromocionAPI[]) => {
+        console.log("Recuperando promociones", promociones);
+        this.promociones = promociones;
+      },
+      error => {
+        console.log("Error al cargar promociones:", error);
+        // Don't stop the app if promotions fail to load
+        this.promociones = [];
+      }
+    );
+  }
+
+  // Check if a product has an active promotion
+  hasActivePromotion(productoId: number): boolean {
+    const now = new Date();
+    return this.promociones.some(promo =>
+      promo.productoId === productoId &&
+      new Date(promo.fechaInicio) <= now &&
+      new Date(promo.fechaFin) >= now
+    );
+  }
+
+  // Get active promotion for a product
+  getActivePromotion(productoId: number): PromocionAPI | null {
+    const now = new Date();
+    return this.promociones.find(promo =>
+      promo.productoId === productoId &&
+      new Date(promo.fechaInicio) <= now &&
+      new Date(promo.fechaFin) >= now
+    ) || null;
+  }
+
+  // Get the display price (promotion price if available, otherwise regular price)
+  getDisplayPrice(producto: ProductoAPI): number {
+    const promotion = this.getActivePromotion(producto.productoId);
+    return promotion ? promotion.valor : producto.precio;
+  }
+
+  // Get the original price (for displaying crossed out)
+  getOriginalPrice(producto: ProductoAPI): number {
+    return producto.precio;
+  }
+
+  // Check if current user is admin (cesa.bravo@duocuc.cl)
+  isAdminUser(): boolean {
+    return this.userEmail === 'cesa.bravo@duocuc.cl';
+  }
+
+  // Create new promotion
+  createPromotion(): void {
+    if (!this.isAdminUser()) {
+      console.log("Unauthorized: Only cesa.bravo@duocuc.cl can create promotions");
+      return;
+    }
+
+    this.isCreatingPromotion = true;
+
+    this.productoService.createPromocion().subscribe(
+      (response: CreatePromocionResponseAPI) => {
+        console.log("Promoción creada exitosamente:", response);
+        this.isCreatingPromotion = false;
+
+        // Refresh the page to show new promotions
+        window.location.reload();
+      },
+      error => {
+        console.log("Error al crear promoción:", error);
+        this.isCreatingPromotion = false;
+        alert('Error al crear la promoción. Por favor, intenta de nuevo.');
       }
     );
   }

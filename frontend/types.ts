@@ -72,6 +72,23 @@ export interface VentaAPI {
   };
 }
 
+export interface PromocionAPI {
+  id: number;
+  productoId: number;
+  cantidad: number;
+  valor: number;
+  fechaInicio: string;
+  fechaFin: string;
+}
+
+export interface CreatePromocionResponseAPI {
+  promocionCreated: PromocionAPI;
+  ventas: any[];
+  externalServiceError: string;
+  stock: any[];
+  savedToDatabase: boolean;
+}
+
 // Carrito entity
 export interface Carrito {
   carritoId: number;

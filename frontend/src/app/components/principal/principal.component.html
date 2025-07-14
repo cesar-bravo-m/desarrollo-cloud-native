@@ -10,6 +10,19 @@
                     </ul>
 
                     <form *ngIf="usuarioId || !usuarioId" class="d-flex">
+                        <!-- Admin promotion creation button -->
+                        <button
+                            *ngIf="isAdminUser()"
+                            class="btn btn-outline-warning me-2"
+                            type="button"
+                            (click)="createPromotion()"
+                            [disabled]="isCreatingPromotion">
+                            <span *ngIf="isCreatingPromotion" class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                            <i *ngIf="!isCreatingPromotion" class="fas fa-tags me-1"></i>
+                            <span *ngIf="isCreatingPromotion">Creando...</span>
+                            <span *ngIf="!isCreatingPromotion">Crear promoción</span>
+                        </button>
+
                         <button class="btn btn-outline-dark" type="button" (click)="goCarro()">
                             <i class="fas fa-shopping-cart me-1"></i>
                             Carro
@@ -66,14 +79,22 @@
                                     style="height: 250px; object-fit: cover;"
                                     (error)="onImageError($event, producto.productoId)" />
 
-                                <!-- Stock indicator -->
+                                <!-- Stock indicator and promotion badge -->
                                 <div class="position-absolute top-0 end-0 m-2">
-                                    <span
-                                        class="badge"
-                                        [class.bg-success]="isProductInStock(producto)"
-                                        [class.bg-danger]="!isProductInStock(producto)">
-                                        {{ isProductInStock(producto) ? 'En stock' : 'Agotado' }}
-                                    </span>
+                                    <div class="d-flex flex-column gap-1">
+                                        <!-- Promotion badge -->
+                                        <span *ngIf="hasActivePromotion(producto.productoId)"
+                                            class="badge bg-warning text-dark fw-bold">
+                                            ¡En oferta!
+                                        </span>
+                                        <!-- Stock badge -->
+                                        <span
+                                            class="badge"
+                                            [class.bg-success]="isProductInStock(producto)"
+                                            [class.bg-danger]="!isProductInStock(producto)">
+                                            {{ isProductInStock(producto) ? 'En stock' : 'Agotado' }}
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -89,9 +110,22 @@
 
                                     <!-- Product price -->
                                     <div class="mb-2">
-                                        <span class="h4 text-primary fw-bold">
-                                            {{ formatPrice(producto.precio) }}
-                                        </span>
+                                        <!-- Show promotion price if available -->
+                                        <div *ngIf="hasActivePromotion(producto.productoId)">
+                                            <span class="h4 text-danger fw-bold">
+                                                {{ formatPrice(getDisplayPrice(producto)) }}
+                                            </span>
+                                            <br>
+                                            <span class="text-muted text-decoration-line-through">
+                                                {{ formatPrice(getOriginalPrice(producto)) }}
+                                            </span>
+                                        </div>
+                                        <!-- Show regular price if no promotion -->
+                                        <div *ngIf="!hasActivePromotion(producto.productoId)">
+                                            <span class="h4 text-primary fw-bold">
+                                                {{ formatPrice(producto.precio) }}
+                                            </span>
+                                        </div>
                                     </div>
 
                                     <!-- Stock quantity -->

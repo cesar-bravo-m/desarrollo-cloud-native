@@ -92,15 +92,35 @@
                                         <!-- Product details -->
                                         <div class="col-md-6">
                                             <div class="h-100 d-flex flex-column">
-                                                <h5 class="fw-bold mb-2">{{ productos[item.productoId]?.nombre }}</h5>
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <h5 class="fw-bold mb-0 me-2">{{ productos[item.productoId]?.nombre }}</h5>
+                                                    <span *ngIf="hasActivePromotion(item.productoId)"
+                                                        class="badge bg-warning text-dark fw-bold">
+                                                        ¡En oferta!
+                                                    </span>
+                                                </div>
                                                 <p class="text-muted mb-2" *ngIf="productos[item.productoId]?.descripcion">
                                                     {{ productos[item.productoId]?.descripcion }}
                                                 </p>
                                                 <div class="mt-auto">
-                                                    <span class="h5 text-primary fw-bold">
-                                                        {{ formatPrice(productos[item.productoId]?.precio || 0) }}
-                                                    </span>
-                                                    <small class="text-muted ms-2">por unidad</small>
+                                                    <!-- Show promotion price if available -->
+                                                    <div *ngIf="hasActivePromotion(item.productoId)">
+                                                        <span class="h5 text-danger fw-bold">
+                                                            {{ formatPrice(getDisplayPrice(item.productoId)) }}
+                                                        </span>
+                                                        <small class="text-muted ms-2">por unidad</small>
+                                                        <br>
+                                                        <span class="text-muted text-decoration-line-through">
+                                                            {{ formatPrice(getOriginalPrice(item.productoId)) }}
+                                                        </span>
+                                                    </div>
+                                                    <!-- Show regular price if no promotion -->
+                                                    <div *ngIf="!hasActivePromotion(item.productoId)">
+                                                        <span class="h5 text-primary fw-bold">
+                                                            {{ formatPrice(productos[item.productoId]?.precio || 0) }}
+                                                        </span>
+                                                        <small class="text-muted ms-2">por unidad</small>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -143,7 +163,7 @@
                                                 <div class="text-center">
                                                     <small class="text-muted d-block">Subtotal</small>
                                                     <span class="fw-bold text-success">
-                                                        {{ formatPrice((productos[item.productoId]?.precio || 0) * item.cantidad) }}
+                                                        {{ formatPrice(getDisplayPrice(item.productoId) * item.cantidad) }}
                                                     </span>
                                                 </div>
                                             </div>
