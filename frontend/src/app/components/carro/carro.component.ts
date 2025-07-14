@@ -370,7 +370,9 @@ export class CarroComponent implements OnInit {
 
         if (sales.length > 0) {
           const sale = sales.find(sale => sale.carritoId === this.currentCart!.carritoId);
-          this.receiptUrl = sale?.urlRecibo || 'http://localhost:8080/boleta?carritoId=' + this.currentCart!.carritoId;
+          // this.receiptUrl = sale?.urlRecibo || 'http://localhost:8080/boleta?carritoId=' + this.currentCart!.carritoId;
+          // this.receiptUrl = 'http://34.205.63.114:8080/boleta?carritoId=' + this.currentCart!.carritoId;
+          this.receiptUrl = 'https://dbg62vx3y2.execute-api.us-east-1.amazonaws.com/boleta?carritoId=' + this.currentCart!.carritoId;
         }
 
         this.isCheckingOut = false;

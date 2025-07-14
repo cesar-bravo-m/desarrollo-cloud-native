@@ -11,7 +11,9 @@ import { ProductoAPI, CarroAPI, CarroCreateAPI, CarroResponseAPI, CarroItemAPI, 
 
 export class ProductoService {
 
-  private url = "http://localhost:8080";
+  // private url = "http://localhost:8080";
+  // private url = "http://34.205.63.114:8080";
+  private url = "https://dbg62vx3y2.execute-api.us-east-1.amazonaws.com";
 
   constructor(
     private http: HttpClient,
